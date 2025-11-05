@@ -42,14 +42,15 @@ const WorldMap = () => {
               <ComposableMap
                 projection="geoMercator"
                 projectionConfig={{
-                  scale: 140,
+                  scale: 130,
+                  center: [0, 20],
                 }}
                 style={{
                   width: "100%",
                   height: "auto",
                 }}
               >
-                <ZoomableGroup center={[0, 20]} zoom={1}>
+                <ZoomableGroup center={[0, 20]} zoom={1} maxZoom={3} minZoom={1}>
                   <Geographies geography={geoUrl}>
                     {({ geographies }) =>
                       geographies.map((geo) => {

@@ -1,5 +1,5 @@
 import { NavLink } from "./NavLink";
-import { Music, Map, Gamepad2, Calendar, Newspaper } from "lucide-react";
+import { Music, Map, Gamepad2, Calendar, Newspaper, Plane } from "lucide-react";
 
 const Navigation = () => {
   const navItems = [
@@ -8,6 +8,7 @@ const Navigation = () => {
     { to: "/game", icon: Gamepad2, label: "Guess the Music" },
     { to: "/releases", icon: Calendar, label: "Releases" },
     { to: "/news", icon: Newspaper, label: "News" },
+    { to: "/taylor-swift-tracker", icon: Plane, label: "TS Tracker" },
   ];
 
   return (

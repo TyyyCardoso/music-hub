@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, SkipForward, Trophy } from "lucide-react";
+import { Play, SkipForward, Trophy, Music, Type } from "lucide-react";
 import { toast } from "sonner";
 
 interface Song {
@@ -9,6 +9,7 @@ interface Song {
   artist: string;
   options: string[];
   correctAnswer: string;
+  audioUrl?: string;
 }
 
 const songs: Song[] = [
@@ -44,12 +45,15 @@ const songs: Song[] = [
   },
 ];
 
+type GameMode = "name" | "sound" | null;
+
 const Game = () => {
   const [currentSong, setCurrentSong] = useState(0);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [gameMode, setGameMode] = useState<GameMode>(null);
 
   const handleAnswer = (answer: string) => {
     if (answered) return;
@@ -59,12 +63,12 @@ const Game = () => {
 
     if (answer === songs[currentSong].correctAnswer) {
       setScore(score + 1);
-      toast.success("Correct! 🎉", {
-        description: `That's ${songs[currentSong].title} by ${songs[currentSong].artist}`,
+      toast.success("Correto! 🎉", {
+        description: `É ${songs[currentSong].title} de ${songs[currentSong].artist}`,
       });
     } else {
-      toast.error("Wrong answer!", {
-        description: `The correct answer was ${songs[currentSong].correctAnswer}`,
+      toast.error("Resposta errada!", {
+        description: `A resposta correta era ${songs[currentSong].correctAnswer}`,
       });
     }
   };
@@ -75,8 +79,8 @@ const Game = () => {
       setAnswered(false);
       setSelectedAnswer(null);
     } else {
-      toast.success(`Game Over! Your score: ${score}/${songs.length}`, {
-        description: "Thanks for playing!",
+      toast.success(`Jogo terminado! Pontuação: ${score}/${songs.length}`, {
+        description: "Obrigado por jogar!",
       });
       resetGame();
     }
@@ -88,102 +92,169 @@ const Game = () => {
     setGameStarted(false);
     setAnswered(false);
     setSelectedAnswer(null);
+    setGameMode(null);
   };
+
+  const startGame = (mode: GameMode) => {
+    setGameMode(mode);
+    setGameStarted(true);
+  };
+
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen pt-24 pb-12">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold mb-4 gradient-text">Adivinhe a Música</h1>
+            <p className="text-xl text-muted-foreground">
+              Teste o seu conhecimento musical!
+            </p>
+          </div>
+
+          {!gameMode ? (
+            <Card className="card-glow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl mb-4">Escolha o Modo de Jogo</CardTitle>
+                <CardDescription className="text-lg">
+                  Selecione como quer jogar
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid md:grid-cols-2 gap-4">
+                <Card className="border-2 hover:border-primary transition-colors cursor-pointer" onClick={() => startGame("name")}>
+                  <CardHeader className="text-center">
+                    <Type className="w-12 h-12 mx-auto mb-4 text-primary" />
+                    <CardTitle className="text-2xl">Modo Nome</CardTitle>
+                    <CardDescription>
+                      Veja o nome da música e adivinhe o artista
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex justify-center">
+                    <Button size="lg" className="w-full">
+                      Jogar
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 hover:border-secondary transition-colors cursor-pointer opacity-60" onClick={() => toast.info("Modo Som em breve!", { description: "Esta funcionalidade estará disponível em breve" })}>
+                  <CardHeader className="text-center">
+                    <Music className="w-12 h-12 mx-auto mb-4 text-secondary" />
+                    <CardTitle className="text-2xl">Modo Som</CardTitle>
+                    <CardDescription>
+                      Ouça a música e adivinhe o artista
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex justify-center">
+                    <Button size="lg" variant="secondary" className="w-full" disabled>
+                      Em breve
+                    </Button>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="card-glow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl mb-4">Pronto para Jogar?</CardTitle>
+                <CardDescription className="text-lg">
+                  Identifique o artista de cada música. Vamos ver quantas acerta!
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <Button
+                  size="lg"
+                  onClick={() => setGameStarted(true)}
+                  className="text-lg px-8 py-6"
+                >
+                  <Play className="mr-2" />
+                  Começar Jogo
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setGameMode(null)}
+                  className="text-lg px-8 py-6"
+                >
+                  Voltar
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 gradient-text">Guess the Music</h1>
+          <h1 className="text-5xl font-bold mb-4 gradient-text">Adivinhe a Música</h1>
           <p className="text-xl text-muted-foreground">
-            Test your music knowledge!
+            Modo: {gameMode === "name" ? "Nome" : "Som"}
           </p>
         </div>
 
-        {!gameStarted ? (
-          <Card className="card-glow">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl mb-4">Ready to Play?</CardTitle>
-              <CardDescription className="text-lg">
-                Identify the artist for each song title. Let's see how many you can get right!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2 text-xl">
+            <Trophy className="text-accent" />
+            <span className="font-bold">Pontuação: {score}/{songs.length}</span>
+          </div>
+          <span className="text-muted-foreground">
+            Pergunta {currentSong + 1} de {songs.length}
+          </span>
+        </div>
+
+        <Card className="card-glow">
+          <CardHeader>
+            <CardTitle className="text-3xl gradient-text text-center">
+              {gameMode === "name" ? songs[currentSong].title : "♫ Ouça a música ♫"}
+            </CardTitle>
+            <CardDescription className="text-center text-lg">
+              Quem é o artista?
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {songs[currentSong].options.map((option) => (
               <Button
-                size="lg"
-                onClick={() => setGameStarted(true)}
-                className="text-lg px-8 py-6"
+                key={option}
+                variant={
+                  answered
+                    ? option === songs[currentSong].correctAnswer
+                      ? "default"
+                      : option === selectedAnswer
+                      ? "destructive"
+                      : "outline"
+                    : "outline"
+                }
+                className="w-full text-lg py-6"
+                onClick={() => handleAnswer(option)}
+                disabled={answered}
               >
-                <Play className="mr-2" />
-                Start Game
+                {option}
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2 text-xl">
-                <Trophy className="text-accent" />
-                <span className="font-bold">Score: {score}/{songs.length}</span>
-              </div>
-              <span className="text-muted-foreground">
-                Question {currentSong + 1} of {songs.length}
-              </span>
-            </div>
+            ))}
 
-            <Card className="card-glow">
-              <CardHeader>
-                <CardTitle className="text-3xl gradient-text text-center">
-                  {songs[currentSong].title}
-                </CardTitle>
-                <CardDescription className="text-center text-lg">
-                  Who is the artist?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {songs[currentSong].options.map((option) => (
-                  <Button
-                    key={option}
-                    variant={
-                      answered
-                        ? option === songs[currentSong].correctAnswer
-                          ? "default"
-                          : option === selectedAnswer
-                          ? "destructive"
-                          : "outline"
-                        : "outline"
-                    }
-                    className="w-full text-lg py-6"
-                    onClick={() => handleAnswer(option)}
-                    disabled={answered}
-                  >
-                    {option}
-                  </Button>
-                ))}
-
-                {answered && (
-                  <Button
-                    onClick={nextSong}
-                    size="lg"
-                    className="w-full mt-6"
-                  >
-                    {currentSong < songs.length - 1 ? (
-                      <>
-                        <SkipForward className="mr-2" />
-                        Next Song
-                      </>
-                    ) : (
-                      <>
-                        <Trophy className="mr-2" />
-                        Finish Game
-                      </>
-                    )}
-                  </Button>
+            {answered && (
+              <Button
+                onClick={nextSong}
+                size="lg"
+                className="w-full mt-6"
+              >
+                {currentSong < songs.length - 1 ? (
+                  <>
+                    <SkipForward className="mr-2" />
+                    Próxima Música
+                  </>
+                ) : (
+                  <>
+                    <Trophy className="mr-2" />
+                    Terminar Jogo
+                  </>
                 )}
-              </CardContent>
-            </Card>
-          </>
-        )}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

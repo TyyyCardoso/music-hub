@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Newspaper } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Newspaper, Search } from "lucide-react";
 
 interface NewsItem {
   title: string;
@@ -49,18 +52,60 @@ const newsItems: NewsItem[] = [
 ];
 
 const News = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const filteredNews = newsItems.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = ["all", ...Array.from(new Set(newsItems.map(n => n.category)))];
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 gradient-text">Music News</h1>
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold mb-4 gradient-text">Notícias Musicais</h1>
           <p className="text-xl text-muted-foreground">
-            Stay updated with the latest from the music world
+            As últimas novidades do mundo da música
           </p>
         </div>
 
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+              <Input
+                placeholder="Pesquisar notícias..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as Categorias</SelectItem>
+                {categories.slice(1).map(category => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-          {newsItems.map((item, index) => (
+          {filteredNews.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-xl text-muted-foreground">Nenhuma notícia encontrada</p>
+            </div>
+          ) : (
+            filteredNews.map((item, index) => (
             <Card key={index} className="card-glow">
               <CardHeader>
                 <div className="flex items-start justify-between mb-2">
@@ -80,7 +125,8 @@ const News = () => {
                 <p className="text-foreground/90">{item.description}</p>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import WorldMap from "./pages/WorldMap";
 import Game from "./pages/Game";
 import Releases from "./pages/Releases";
 import News from "./pages/News";
+import TaylorSwiftTracker from "./pages/TaylorSwiftTracker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/game" element={<Game />} />
           <Route path="/releases" element={<Releases />} />
           <Route path="/news" element={<News />} />
+          <Route path="/taylor-swift-tracker" element={<TaylorSwiftTracker />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
