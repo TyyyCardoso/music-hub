@@ -1,85 +1,111 @@
 import { useState } from "react";
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  ZoomableGroup,
+} from "react-simple-maps";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import worldMapBg from "@/assets/world-map-bg.jpg";
+import { musicDataByCountry, CountryMusic } from "@/data/musicData";
+import { Lightbulb } from "lucide-react";
 
-interface CountryMusic {
-  country: string;
-  artists: string[];
-  genres: string[];
-  description: string;
-}
-
-const countryData: Record<string, CountryMusic> = {
-  "United States": {
-    country: "United States",
-    artists: ["Taylor Swift", "Kendrick Lamar", "Billie Eilish"],
-    genres: ["Pop", "Hip Hop", "Rock", "Country"],
-    description: "Birthplace of jazz, blues, and hip hop. Home to diverse musical traditions.",
-  },
-  "United Kingdom": {
-    country: "United Kingdom",
-    artists: ["The Beatles", "Adele", "Ed Sheeran"],
-    genres: ["Rock", "Pop", "Electronic"],
-    description: "British Invasion pioneers. Leading force in rock and electronic music.",
-  },
-  "Brazil": {
-    country: "Brazil",
-    artists: ["Anitta", "Caetano Veloso", "Gilberto Gil"],
-    genres: ["Bossa Nova", "Samba", "Funk Carioca"],
-    description: "Rich rhythmic traditions. Bossa nova and samba influence worldwide.",
-  },
-  "South Korea": {
-    country: "South Korea",
-    artists: ["BTS", "BLACKPINK", "IU"],
-    genres: ["K-Pop", "R&B", "Hip Hop"],
-    description: "K-pop global phenomenon. Cutting-edge production and performance.",
-  },
-  "Nigeria": {
-    country: "Nigeria",
-    artists: ["Burna Boy", "Wizkid", "Fela Kuti"],
-    genres: ["Afrobeats", "Afrobeat", "Highlife"],
-    description: "Afrobeats taking the world by storm. Rich percussion traditions.",
-  },
-};
+const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 const WorldMap = () => {
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<CountryMusic | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
-  const countries = Object.keys(countryData);
+  const handleCountryClick = (geo: any) => {
+    const countryCode = geo.id;
+    const countryData = musicDataByCountry[countryCode];
+    
+    if (countryData) {
+      setSelectedCountry(countryData);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-4 gradient-text">Explore World Music</h1>
           <p className="text-xl text-muted-foreground">
-            Click on a country to discover its musical heritage
+            Clique num país no mapa para descobrir a sua música
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Map Section */}
+          {/* Interactive Map Section */}
           <Card className="card-glow overflow-hidden">
-            <CardContent className="p-0 relative h-[500px]">
-              <img
-                src={worldMapBg}
-                alt="World Map"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
-              
-              {/* Interactive Country Buttons */}
-              <div className="absolute inset-0 flex flex-wrap items-center justify-center gap-4 p-8">
-                {countries.map((country) => (
-                  <button
-                    key={country}
-                    onClick={() => setSelectedCountry(country)}
-                    className="px-6 py-3 bg-primary/20 hover:bg-primary/40 backdrop-blur-md rounded-lg border border-primary/50 text-foreground font-semibold transition-all hover:scale-105"
-                  >
-                    {country}
-                  </button>
-                ))}
+            <CardContent className="p-4">
+              <ComposableMap
+                projection="geoMercator"
+                projectionConfig={{
+                  scale: 140,
+                }}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                }}
+              >
+                <ZoomableGroup center={[0, 20]} zoom={1}>
+                  <Geographies geography={geoUrl}>
+                    {({ geographies }) =>
+                      geographies.map((geo) => {
+                        const countryCode = geo.id;
+                        const hasData = !!musicDataByCountry[countryCode];
+                        const isHovered = hoveredCountry === countryCode;
+                        const isSelected = selectedCountry?.code === countryCode;
+
+                        return (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            onMouseEnter={() => {
+                              if (hasData) setHoveredCountry(countryCode);
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredCountry(null);
+                            }}
+                            onClick={() => handleCountryClick(geo)}
+                            style={{
+                              default: {
+                                fill: hasData
+                                  ? isSelected
+                                    ? "hsl(330 85% 60%)"
+                                    : "hsl(210 80% 55%)"
+                                  : "hsl(220 20% 25%)",
+                                stroke: "hsl(220 30% 8%)",
+                                strokeWidth: 0.5,
+                                outline: "none",
+                                transition: "all 0.3s ease",
+                              },
+                              hover: {
+                                fill: hasData
+                                  ? "hsl(330 85% 70%)"
+                                  : "hsl(220 20% 25%)",
+                                stroke: "hsl(330 85% 60%)",
+                                strokeWidth: hasData ? 1.5 : 0.5,
+                                outline: "none",
+                                cursor: hasData ? "pointer" : "default",
+                              },
+                              pressed: {
+                                fill: "hsl(330 85% 60%)",
+                                stroke: "hsl(330 85% 60%)",
+                                strokeWidth: 2,
+                                outline: "none",
+                              },
+                            }}
+                          />
+                        );
+                      })
+                    }
+                  </Geographies>
+                </ZoomableGroup>
+              </ComposableMap>
+              <div className="text-center mt-4 text-sm text-muted-foreground">
+                <p>Países a azul têm informação disponível • Clique para explorar</p>
               </div>
             </CardContent>
           </Card>
@@ -90,19 +116,19 @@ const WorldMap = () => {
               <Card className="card-glow">
                 <CardHeader>
                   <CardTitle className="text-3xl gradient-text">
-                    {countryData[selectedCountry].country}
+                    {selectedCountry.country}
                   </CardTitle>
                   <CardDescription className="text-lg">
-                    {countryData[selectedCountry].description}
+                    {selectedCountry.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div>
                     <h3 className="text-xl font-semibold mb-3 text-primary">
-                      Popular Artists
+                      Artistas Populares
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {countryData[selectedCountry].artists.map((artist) => (
+                      {selectedCountry.artists.map((artist) => (
                         <Badge key={artist} variant="secondary" className="text-base py-2 px-4">
                           {artist}
                         </Badge>
@@ -112,26 +138,46 @@ const WorldMap = () => {
 
                   <div>
                     <h3 className="text-xl font-semibold mb-3 text-secondary">
-                      Music Genres
+                      Géneros Musicais
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {countryData[selectedCountry].genres.map((genre) => (
+                      {selectedCountry.genres.map((genre) => (
                         <Badge key={genre} variant="outline" className="text-base py-2 px-4">
                           {genre}
                         </Badge>
                       ))}
                     </div>
                   </div>
+
+                  {selectedCountry.funFact && (
+                    <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <Lightbulb className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-accent mb-1">Fun Fact</h4>
+                          <p className="text-sm text-foreground/90">{selectedCountry.funFact}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ) : (
               <Card className="card-glow">
                 <CardHeader>
-                  <CardTitle className="text-2xl">Select a Country</CardTitle>
-                  <CardDescription>
-                    Choose a country from the map to explore its musical culture
+                  <CardTitle className="text-2xl">Selecione um País</CardTitle>
+                  <CardDescription className="text-base">
+                    Clique num país no mapa para explorar a sua cultura musical. 
+                    Países a azul têm informação disponível.
                   </CardDescription>
                 </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <p>✨ Passe o rato por cima dos países para destacá-los</p>
+                    <p>🌍 {Object.keys(musicDataByCountry).length} países disponíveis</p>
+                    <p>🎵 Descubra artistas, géneros e factos interessantes</p>
+                  </div>
+                </CardContent>
               </Card>
             )}
           </div>
