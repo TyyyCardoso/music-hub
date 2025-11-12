@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ComposableMap,
   Geographies,
@@ -129,11 +130,16 @@ const WorldMap = () => {
                       Artistas Populares
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {selectedCountry.artists.map((artist) => (
-                        <Badge key={artist} variant="secondary" className="text-base py-2 px-4">
-                          {artist}
-                        </Badge>
-                      ))}
+                      {selectedCountry.artists.map((artist) => {
+                        const artistId = artist.toLowerCase().replace(/\s+/g, '-');
+                        return (
+                          <Link key={artist} to={`/artist/${artistId}`}>
+                            <Badge variant="secondary" className="text-base py-2 px-4 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                              {artist}
+                            </Badge>
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
 
