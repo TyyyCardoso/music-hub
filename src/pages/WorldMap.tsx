@@ -97,17 +97,29 @@ const WorldMap = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Cache em memória para armazenar dados já carregados
+  const cacheRef = useRef<Record<string, MusicInfo>>({});
+
   // --- Handlers com useCallback para estabilidade referencial ---
   const handleCountryClick = useCallback(async (geo: MapGeography) => {
     const countryCode = geo.id;
     const countryName = (geo as any).properties.name;
 
+    // 1. Se já existir no cache → usa imediatamente
+    if (cacheRef.current[countryCode]) {
+      setSelectedCountry(cacheRef.current[countryCode]);
+      console.log("from cache")
+      return;
+    }
+
+    // 2. Se não existir → chama API
     setSelectedCountry(null);      // Limpa estado anterior
     setIsLoading(true);            // Novo estado para loading
     setError(null);                // Limpa erros
 
     try {
       const data = await fetchMusicData(countryCode, countryName);
+      cacheRef.current[countryCode] = data;
       setSelectedCountry(data);
       console.log(data);
     } catch (err) {
