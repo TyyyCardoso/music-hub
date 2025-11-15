@@ -1,3 +1,12 @@
+export type MusicInfo = {
+  code: string;
+  country: string;
+  artists: string[];
+  genres: string[];
+  description: string;
+  funFact?: string;
+};
+
 export interface CountryMusic {
   country: string;
   code: string;

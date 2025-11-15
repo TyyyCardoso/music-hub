@@ -8,12 +8,14 @@ import {
 } from "react-simple-maps";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { musicDataByCountry, CountryMusic } from "@/data/musicData";
-import { Lightbulb } from "lucide-react";
+// --- 1. TIPO RENOMEADO e importação da API ---
+import { musicDataByCountry, MusicInfo } from "@/data/musicData"; // Alterado de CountryMusic
+import { Lightbulb, Loader2 } from "lucide-react"; // Adicionado Loader2
+import { fetchMusicData } from "@/lib/api/musicBrainz"; // Ajusta este caminho se necessário
 
 // --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-const availableCountriesCount = Object.keys(musicDataByCountry).length;
+const availableCountriesCount = 2;
 
 // --- Tipos para os componentes do mapa ---
 interface MapGeography {
@@ -90,7 +92,8 @@ const MemoizedCountry = memo(CountryGeography);
 
 // --- Componente Principal ---
 const WorldMap = () => {
-  const [selectedCountry, setSelectedCountry] = useState<CountryMusic | null>(null);
+  // --- 2. TIPO RENOMEADO NO STATE ---
+  const [selectedCountry, setSelectedCountry] = useState<MusicInfo | null>(null); // Alterado de CountryMusic
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null); // Mantido para referência futura, se necessário
 
   // --- Handlers com useCallback para estabilidade referencial ---
@@ -120,6 +123,9 @@ const WorldMap = () => {
             Clique num país no mapa para descobrir a sua música
           </p>
         </div>
+
+        {/* --- 4. BOTÃO DE TESTE ADICIONADO AQUI --- */}
+        <TestApiButton />
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Interactive Map Section */}
@@ -243,9 +249,72 @@ const WorldMap = () => {
                 </CardContent>
               </Card>
             )}
+
+            
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+// --- 3. COMPONENTE DE TESTE ADICIONADO AQUI ---
+/**
+ * Componente de teste para a API do MusicBrainz
+ */
+const TestApiButton = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<MusicInfo | null>(null);
+
+  const handleTestClick = async () => {
+    setIsLoading(true);
+    setError(null);
+    setData(null);
+
+    try {
+      // --- Vamos testar com "Portugal" (PRT) ---
+      const result = await fetchMusicData("PRT", "Portugal");
+      setData(result);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-4 border-2 border-dashed rounded-lg my-8">
+      <h3 className="text-lg font-semibold mb-2">Painel de Teste da API</h3>
+      <button
+        onClick={handleTestClick}
+        disabled={isLoading}
+        className="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50 flex items-center gap-2"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            A testar...
+          </>
+        ) : (
+          "Testar API (Buscar 'Portugal')"
+        )}
+      </button>
+
+      {error && (
+        <div className="mt-4 p-3 bg-destructive/10 text-destructive rounded-md">
+          <strong>Erro:</strong> {error}
+        </div>
+      )}
+
+      {data && (
+        <div className="mt-4">
+          <h4 className="font-semibold">Resultado (JSON):</h4>
+          <pre className="p-3 mt-2 bg-muted rounded-md text-sm overflow-x-auto">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
