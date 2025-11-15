@@ -95,16 +95,27 @@ const WorldMap = () => {
   // --- 2. TIPO RENOMEADO NO STATE ---
   const [selectedCountry, setSelectedCountry] = useState<MusicInfo | null>(null); // Alterado de CountryMusic
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null); // Mantido para referência futura, se necessário
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // --- Handlers com useCallback para estabilidade referencial ---
-  const handleCountryClick = useCallback((geo: MapGeography) => {
+  const handleCountryClick = useCallback(async (geo: MapGeography) => {
     const countryCode = geo.id;
-    const countryData = musicDataByCountry[countryCode];
+    const countryName = (geo as any).properties.name;
 
-    if (countryData) {
-      setSelectedCountry(countryData);
+    setSelectedCountry(null);      // Limpa estado anterior
+    setIsLoading(true);            // Novo estado para loading
+    setError(null);                // Limpa erros
+
+    try {
+      const data = await fetchMusicData(countryCode, countryName);
+      setSelectedCountry(data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
     }
-  }, []); // A dependência está vazia porque musicDataByCountry é estático
+  }, []);
 
   const handleCountryEnter = useCallback((countryCode: string) => {
     setHoveredCountry(countryCode);
