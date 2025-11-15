@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Play, SkipForward, Trophy, Music, Type } from "lucide-react";
 import { toast } from "sonner";
+import MiniPlayer from "@/components/ui/miniplayer";
+
 
 interface Song {
   title: string;
@@ -135,7 +137,7 @@ const Game = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-secondary transition-colors cursor-pointer opacity-60" onClick={() => toast.info("Modo Som em breve!", { description: "Esta funcionalidade estará disponível em breve" })}>
+                <Card className="border-2 hover:border-secondary transition-colors cursor-pointer" onClick={() => startGame("sound")}>
                   <CardHeader className="text-center">
                     <Music className="w-12 h-12 mx-auto mb-4 text-secondary" />
                     <CardTitle className="text-2xl">Modo Som</CardTitle>
@@ -144,8 +146,8 @@ const Game = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex justify-center">
-                    <Button size="lg" variant="secondary" className="w-full" disabled>
-                      Em breve
+                    <Button size="lg" variant="secondary" className="w-full">
+                      Jogar
                     </Button>
                   </CardContent>
                 </Card>
@@ -205,14 +207,21 @@ const Game = () => {
         </div>
 
         <Card className="card-glow">
-          <CardHeader>
-            <CardTitle className="text-3xl gradient-text text-center">
-              {gameMode === "name" ? songs[currentSong].title : "♫ Ouça a música ♫"}
-            </CardTitle>
-            <CardDescription className="text-center text-lg">
-              Quem é o artista?
-            </CardDescription>
-          </CardHeader>
+          <CardHeader className="text-center">
+          <CardTitle className="text-3xl gradient-text mb-4">
+            {gameMode === "name" ? songs[currentSong].title : "♫ Ouça a música ♫"}
+          </CardTitle>
+            {gameMode === "sound" && (
+              <div>
+                <MiniPlayer songTitle={songs[currentSong].title}/>
+              </div>
+            )}
+
+  <CardDescription className="text-lg">
+    Quem é o artista?
+  </CardDescription>
+</CardHeader>
+
           <CardContent className="space-y-4">
             {songs[currentSong].options.map((option) => (
               <Button
