@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import {
   ComposableMap,
@@ -11,20 +11,105 @@ import { Badge } from "@/components/ui/badge";
 import { musicDataByCountry, CountryMusic } from "@/data/musicData";
 import { Lightbulb } from "lucide-react";
 
+// --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+const availableCountriesCount = Object.keys(musicDataByCountry).length;
 
+// --- Tipos para os componentes do mapa ---
+interface MapGeography {
+  id: string;
+  rsmKey: string;
+  // Adiciona outras propriedades do 'geo' se necessário
+}
+
+type MemoizedCountryProps = {
+  geo: MapGeography;
+  hasData: boolean;
+  isSelected: boolean;
+  onMouseEnter: (countryCode: string) => void;
+  onMouseLeave: () => void;
+  onClick: (geo: MapGeography) => void;
+};
+
+// --- Componente de País Memorizado para Performance ---
+const CountryGeography = ({
+  geo,
+  hasData,
+  isSelected,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}: MemoizedCountryProps) => {
+  const countryCode = geo.id;
+
+  return (
+    <Geography
+      key={geo.rsmKey}
+      geography={geo}
+      onMouseEnter={() => {
+        if (hasData) onMouseEnter(countryCode);
+      }}
+      onMouseLeave={onMouseLeave}
+      onClick={() => onClick(geo)}
+      style={{
+        // --- Estilos "martelados" substituídos por variáveis do tema ---
+        default: {
+          fill: hasData
+            ? isSelected
+              ? "hsl(var(--secondary))" // Cor de seleção
+              : "hsl(var(--primary))"   // Cor disponível
+            : "hsl(var(--muted))",      // Cor sem dados
+          stroke: "hsl(var(--background))", // Borda da cor do fundo do card
+          strokeWidth: 0.5,
+          outline: "none",
+          transition: "all 0.3s ease",
+        },
+        hover: {
+          fill: hasData
+            ? "hsl(var(--secondary))"   // Cor de hover (secundária)
+            : "hsl(var(--muted))",
+          stroke: "hsl(var(--primary))", // Borda de hover (primária)
+          strokeWidth: hasData ? 1.5 : 0.5,
+          outline: "none",
+          cursor: hasData ? "pointer" : "default",
+        },
+        pressed: {
+          fill: "hsl(var(--secondary))",
+          stroke: "hsl(var(--primary))",
+          strokeWidth: 2,
+          outline: "none",
+        },
+      }}
+    />
+  );
+};
+
+// Memoriza o componente para evitar re-renders desnecessários
+const MemoizedCountry = memo(CountryGeography);
+
+
+// --- Componente Principal ---
 const WorldMap = () => {
   const [selectedCountry, setSelectedCountry] = useState<CountryMusic | null>(null);
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null); // Mantido para referência futura, se necessário
 
-  const handleCountryClick = (geo: any) => {
+  // --- Handlers com useCallback para estabilidade referencial ---
+  const handleCountryClick = useCallback((geo: MapGeography) => {
     const countryCode = geo.id;
     const countryData = musicDataByCountry[countryCode];
-    
+
     if (countryData) {
       setSelectedCountry(countryData);
     }
-  };
+  }, []); // A dependência está vazia porque musicDataByCountry é estático
+
+  const handleCountryEnter = useCallback((countryCode: string) => {
+    setHoveredCountry(countryCode);
+  }, []);
+
+  const handleCountryLeave = useCallback(() => {
+    setHoveredCountry(null);
+  }, []);
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -55,50 +140,20 @@ const WorldMap = () => {
                   <Geographies geography={geoUrl}>
                     {({ geographies }) =>
                       geographies.map((geo) => {
-                        const countryCode = geo.id;
+                        const countryCode = (geo as MapGeography).id;
                         const hasData = !!musicDataByCountry[countryCode];
-                        const isHovered = hoveredCountry === countryCode;
                         const isSelected = selectedCountry?.code === countryCode;
 
+                        // --- Loop de renderização limpo, usando o componente memorizado ---
                         return (
-                          <Geography
+                          <MemoizedCountry
                             key={geo.rsmKey}
-                            geography={geo}
-                            onMouseEnter={() => {
-                              if (hasData) setHoveredCountry(countryCode);
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredCountry(null);
-                            }}
-                            onClick={() => handleCountryClick(geo)}
-                            style={{
-                              default: {
-                                fill: hasData
-                                  ? isSelected
-                                    ? "hsl(330 85% 60%)"
-                                    : "hsl(210 80% 55%)"
-                                  : "hsl(220 20% 25%)",
-                                stroke: "hsl(220 30% 8%)",
-                                strokeWidth: 0.5,
-                                outline: "none",
-                                transition: "all 0.3s ease",
-                              },
-                              hover: {
-                                fill: hasData
-                                  ? "hsl(330 85% 70%)"
-                                  : "hsl(220 20% 25%)",
-                                stroke: "hsl(330 85% 60%)",
-                                strokeWidth: hasData ? 1.5 : 0.5,
-                                outline: "none",
-                                cursor: hasData ? "pointer" : "default",
-                              },
-                              pressed: {
-                                fill: "hsl(330 85% 60%)",
-                                stroke: "hsl(330 85% 60%)",
-                                strokeWidth: 2,
-                                outline: "none",
-                              },
-                            }}
+                            geo={geo as MapGeography}
+                            hasData={hasData}
+                            isSelected={isSelected}
+                            onMouseEnter={handleCountryEnter}
+                            onMouseLeave={handleCountryLeave}
+                            onClick={handleCountryClick}
                           />
                         );
                       })
@@ -174,14 +229,15 @@ const WorldMap = () => {
                 <CardHeader>
                   <CardTitle className="text-2xl">Selecione um País</CardTitle>
                   <CardDescription className="text-base">
-                    Clique num país no mapa para explorar a sua cultura musical. 
+                    Clique num país no mapa para explorar a sua cultura musical.
                     Países a azul têm informação disponível.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 text-sm text-muted-foreground">
                     <p>✨ Passe o rato por cima dos países para destacá-los</p>
-                    <p>🌍 {Object.keys(musicDataByCountry).length} países disponíveis</p>
+                    {/* --- Usando a constante --- */}
+                    <p>🌍 {availableCountriesCount} países disponíveis</p>
                     <p>🎵 Descubra artistas, géneros e factos interessantes</p>
                   </div>
                 </CardContent>

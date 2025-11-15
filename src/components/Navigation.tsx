@@ -3,12 +3,11 @@ import { Music, Map, Gamepad2, Calendar, Newspaper, Plane } from "lucide-react";
 
 const Navigation = () => {
   const navItems = [
-    { to: "/", icon: Music, label: "Home" },
-    { to: "/world-map", icon: Map, label: "World Music" },
-    { to: "/game", icon: Gamepad2, label: "Guess the Music" },
-    { to: "/releases", icon: Calendar, label: "Releases" },
-    { to: "/news", icon: Newspaper, label: "News" },
-    { to: "/taylor-swift-tracker", icon: Plane, label: "TS Tracker" },
+    { to: "/", icon: Music, label: "Página principal" },
+    { to: "/game", icon: Gamepad2, label: "Adivinhe a música" },
+    { to: "/releases", icon: Calendar, label: "Lançamentos" },
+    { to: "/news", icon: Newspaper, label: "Noticias" },
+    { to: "/taylor-swift-tracker", icon: Plane, label: "Taylor Swift Tracker" },
   ];
 
   return (
@@ -17,7 +16,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <Music className="w-8 h-8 text-primary" />
-            <span className="text-xl font-bold gradient-text">Global Music Hub</span>
+            <span className="text-xl font-bold gradient-text">Music Hub</span>
           </div>
           
           <div className="flex items-center gap-6">
