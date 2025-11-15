@@ -103,7 +103,11 @@ const WorldMap = () => {
   // --- Handlers com useCallback para estabilidade referencial ---
   const handleCountryClick = useCallback(async (geo: MapGeography) => {
     const countryCode = geo.id;
-    const countryName = (geo as any).properties.name;
+    const rawName = (geo as any).properties.name;
+    const countryName =
+      rawName === "United States of America"
+        ? "United States"
+        : rawName;
 
     // 1. Se já existir no cache → usa imediatamente
     if (cacheRef.current[countryCode]) {
