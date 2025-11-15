@@ -126,8 +126,9 @@ const WorldMap = () => {
       cacheRef.current[countryCode] = data;
       setSelectedCountry(data);
       console.log(data);
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err:any) {
+      let message = "Tenta novamente dentro de alguns segundos.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
