@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+🎵 Music Hub
 
-## Project info
+A tua jornada interativa pelo mundo da música.
 
-**URL**: https://lovable.dev/projects/36caa6d7-e252-43d8-bcad-36641c0d8d97
+O Music Hub é uma aplicação web desenhada para tornar a interação com a música algo divertido. A plataforma combina conteúdos organizados e aprendizagem interativa. 
 
-## How can I edit this code?
+📋 Índice
 
-There are several ways of editing your application.
+- Sobre o Projeto
+- Funcionalidades
+- Tecnologias
+- Deploy
+  - Deploy no Netlify
 
-**Use Lovable**
+🚀 Sobre o Projeto
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/36caa6d7-e252-43d8-bcad-36641c0d8d97) and start prompting.
+O Music Hub foi desenvolvido para centralizar recursos de aprendizagem musical de forma simples e envolvente. Em vez de navegar por vários sites, aqui tens teoria, prática e contexto cultural reunidos e organizados para ajudar na tua evolução musical.
 
-Changes made via Lovable will be committed automatically to this repo.
+✨ Funcionalidades
 
-**Use your preferred IDE**
+**Quiz "Guess the Music":**
+Testa os teus conhecimentos musicais com um jogo interativo que usa samples de áudio para te desafiar a adivinhar a música correta.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Explorador Musical Geográfico:**
+Navega num mapa-mundo interativo para descobrir artistas, bandas e géneros musicais populares por país.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Agenda de Concertos:**
+Encontra eventos e concertos futuros, com a capacidade de pesquisar por artista ou localização.
 
-Follow these steps:
+**Radar de Lançamentos:**
+Fica a par das novidades com uma lista atualizada dos próximos álbuns e singles da indústria musical.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+**Leitor de Vídeoclips Integrado:**
+Assiste aos teus videoclips favoritos diretamente na plataforma, através da integração com o YouTube.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+**Chatbot Musical:**
+Tira as tuas dúvidas rapidamente usando um chatbot inteligente (integrado com BOTSchool.ai) para obter informações musicais.
 
-# Step 3: Install the necessary dependencies.
-npm i
+**Visualização de Dados:**
+Explora visualizações de dados e curiosidades sobre a indústria, como o histórico de emissões de CO₂ da Taylor Swift.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
+🛠️ Tecnologias
 
 - Vite
-- TypeScript
 - React
-- shadcn-ui
+- TypeScript
 - Tailwind CSS
+- shadcn-ui
+- APIs externas de música
 
-## How can I deploy this project?
+🚢 Deploy
 
-Simply open [Lovable](https://lovable.dev/projects/36caa6d7-e252-43d8-bcad-36641c0d8d97) and click on Share -> Publish.
+🌐 Deploy no Netlify (Recomendado)
+1. Acede a https://app.netlify.com
+2. Clica em Add new site → Import from Git
+3. Escolhe o teu repositório GitHub/GitLab/Bitbucket
+4. Configura:
+  - Build command: npm run build
+  - Publish directory: dist
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+5. Em Site Settings → Environment Variables, adiciona as variáveis do .env
+6. Clica em Deploy site
