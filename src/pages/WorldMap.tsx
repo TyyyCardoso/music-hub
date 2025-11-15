@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useRef} from "react";
 import { Link } from "react-router-dom";
 import {
   ComposableMap,
@@ -15,7 +15,6 @@ import { fetchMusicData } from "@/lib/api/musicBrainz"; // Ajusta este caminho s
 
 // --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-const availableCountriesCount = 2;
 
 // --- Tipos para os componentes do mapa ---
 interface MapGeography {
@@ -110,6 +109,7 @@ const WorldMap = () => {
     try {
       const data = await fetchMusicData(countryCode, countryName);
       setSelectedCountry(data);
+      console.log(data);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -135,9 +135,6 @@ const WorldMap = () => {
           </p>
         </div>
 
-        {/* --- 4. BOTÃO DE TESTE ADICIONADO AQUI --- */}
-        <TestApiButton />
-
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Interactive Map Section */}
           <Card className="card-glow overflow-hidden">
@@ -158,7 +155,7 @@ const WorldMap = () => {
                     {({ geographies }) =>
                       geographies.map((geo) => {
                         const countryCode = (geo as MapGeography).id;
-                        const hasData = !!musicDataByCountry[countryCode];
+                        const hasData = true;
                         const isSelected = selectedCountry?.code === countryCode;
 
                         // --- Loop de renderização limpo, usando o componente memorizado ---
@@ -178,15 +175,23 @@ const WorldMap = () => {
                   </Geographies>
                 </ZoomableGroup>
               </ComposableMap>
-              <div className="text-center mt-4 text-sm text-muted-foreground">
-                <p>Países a azul têm informação disponível • Clique para explorar</p>
-              </div>
             </CardContent>
           </Card>
 
-          {/* Info Section */}
+         {/* Info Section */}
           <div className="space-y-6">
-            {selectedCountry ? (
+            {isLoading ? (
+              <Card className="card-glow p-10 flex justify-center">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </Card>
+            ) : error ? (
+              <Card className="card-glow p-6">
+                <p className="text-destructive text-lg">
+                  Erro ao carregar dados: {error}
+                </p>
+              </Card>
+            ) : selectedCountry ? (
+              /* --- EXISTING UI FOR COUNTRY INFO --- */
               <Card className="card-glow">
                 <CardHeader>
                   <CardTitle className="text-3xl gradient-text">
@@ -196,17 +201,22 @@ const WorldMap = () => {
                     {selectedCountry.description}
                   </CardDescription>
                 </CardHeader>
+
                 <CardContent className="space-y-6">
+                  {/* ARTISTS */}
                   <div>
                     <h3 className="text-xl font-semibold mb-3 text-primary">
                       Artistas Populares
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedCountry.artists.map((artist) => {
-                        const artistId = artist.toLowerCase().replace(/\s+/g, '-');
+                        const artistId = artist.toLowerCase().replace(/\s+/g, "-");
                         return (
                           <Link key={artist} to={`/artist/${artistId}`}>
-                            <Badge variant="secondary" className="text-base py-2 px-4 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                            <Badge
+                              variant="secondary"
+                              className="text-base py-2 px-4 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                            >
                               {artist}
                             </Badge>
                           </Link>
@@ -215,6 +225,7 @@ const WorldMap = () => {
                     </div>
                   </div>
 
+                  {/* GENRES */}
                   <div>
                     <h3 className="text-xl font-semibold mb-3 text-secondary">
                       Géneros Musicais
@@ -227,21 +238,10 @@ const WorldMap = () => {
                       ))}
                     </div>
                   </div>
-
-                  {selectedCountry.funFact && (
-                    <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        <Lightbulb className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="font-semibold text-accent mb-1">Fun Fact</h4>
-                          <p className="text-sm text-foreground/90">{selectedCountry.funFact}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             ) : (
+              /* EMPTY STATE - ORIGINAL */
               <Card className="card-glow">
                 <CardHeader>
                   <CardTitle className="text-2xl">Selecione um País</CardTitle>
@@ -253,16 +253,13 @@ const WorldMap = () => {
                 <CardContent>
                   <div className="space-y-3 text-sm text-muted-foreground">
                     <p>✨ Passe o rato por cima dos países para destacá-los</p>
-                    {/* --- Usando a constante --- */}
-                    <p>🌍 {availableCountriesCount} países disponíveis</p>
                     <p>🎵 Descubra artistas, géneros e factos interessantes</p>
                   </div>
                 </CardContent>
               </Card>
             )}
-
-            
           </div>
+
         </div>
       </div>
     </div>
@@ -295,9 +292,10 @@ const TestApiButton = () => {
   };
 
   return (
+    
     <div className="p-4 border-2 border-dashed rounded-lg my-8">
       <h3 className="text-lg font-semibold mb-2">Painel de Teste da API</h3>
-      <button
+     <button
         onClick={handleTestClick}
         disabled={isLoading}
         className="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50 flex items-center gap-2"
