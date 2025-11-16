@@ -39,7 +39,7 @@ const Game = () => {
   const loadSongs = async () => {
     try {
       setLoadingSongs(true);
-      const count = 5; // nº de perguntas
+      const count = 10; // nº de perguntas
       const final: Song[] = [];
       const usedTitles = new Set<string>(); // para não repetir músicas no questionário
 
