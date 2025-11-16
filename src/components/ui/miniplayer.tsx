@@ -19,23 +19,13 @@ const MiniPlayer = ({ songTitle }: MiniPlayerProps) => {
   if (!previewUrl) return null;
 
   return (
-    <div className="mini-player w-full">
-    <AudioPlayer
-      src={previewUrl}
-      autoPlay
-  showJumpControls={false}
-  customAdditionalControls={[]}
-  layout="horizontal"
-  className="rounded-xl"
-  style={{
-    // slightly faded gradient background so the purple looks a bit desvanecida
-    background: "linear-gradient(135deg, rgba(231, 3, 201, 0.6), rgba(131,58,180,0.18))",
-    "--rhap-progress-filled-color": "white", // barra preenchida branca
-    "--rhap-progress-bar-color": "rgba(255, 255, 255, 0.29)", // barra de fundo mais clara (branca translúcida)
-    "--rhap-text-color": "white", // tempo decorrido / total em branco
-    "--rhap-control-color": "white", // ícones/controles em branco
-  } as React.CSSProperties}
-    />
+    <div className="mini-player">
+      <AudioPlayer src={previewUrl} autoPlay showJumpControls={false}
+        customAdditionalControls={[]} layout="horizontal" className="rounded-xl"
+        style={{
+         background: "linear-gradient(135deg, rgba(231, 3, 201, 0.6), rgba(131,58,180,0.18))",
+        } as React.CSSProperties}
+      />
     </div>
   );
 };
