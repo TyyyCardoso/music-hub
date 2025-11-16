@@ -39,28 +39,34 @@ const Game = () => {
   const loadSongs = async () => {
     try {
       setLoadingSongs(true);
-      const count = 5;
+      const count = 5; // nº de perguntas
       const final: Song[] = [];
+      const usedTitles = new Set<string>(); // para não repetir músicas no questionário
 
-      for (let i = 0; i < count; i++) {
+      while (final.length < count) {
         const options: { title: string; artist: string }[] = [];
         const artistsSet = new Set<string>();
 
+        // tenta criar 4 opções únicas de artistas/músicas para esta pergunta
         while (options.length < 4) {
           const track = await fetchRandomPopularTrack();
           if (!track?.title || !track?.artist) continue;
-
           const title = track.title.trim();
           const artist = track.artist.trim();
 
-          if (artistsSet.has(artist)) continue; // evita repetidos
+          if (usedTitles.has(title)) continue; // já usada no questionário
+          if (artistsSet.has(artist)) continue; // já usada nesta pergunta
 
           options.push({ title, artist });
           artistsSet.add(artist);
         }
 
+        // seleciona aleatoriamente a resposta correta
         const correctIndex = Math.floor(Math.random() * 4);
         const correctSong = options[correctIndex];
+
+        // adiciona música ao set global de títulos usados
+        usedTitles.add(correctSong.title);
 
         final.push({
           title: correctSong.title,
@@ -79,6 +85,7 @@ const Game = () => {
       setLoadingSongs(false);
     }
   };
+
 
 
 

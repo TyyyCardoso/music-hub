@@ -101,56 +101,52 @@ export const fetchMusicData = async (
  * Busca uma música aleatória dos 5 géneros mais populares mundialmente.
  * Ordena por rating e escolhe aleatoriamente uma das top 200.
  * Retorna um objecto com `title` e `artist` ou `null` se não encontrar.
- */
-export const fetchRandomPopularTrack = async (): Promise<{ title: string; artist: string } | null> => {
+ */export const fetchRandomPopularTrack = async (
+  usedTitles: Set<string> = new Set(),
+  usedArtists: Set<string> = new Set()
+): Promise<{ title: string; artist: string } | null> => {
   try {
-    // Top 5 géneros mais populares mundialmente
     const topGenres = ['pop', 'rock', 'hip-hop', 'electronic', 'dance'];
-    
-    // Monta query OR com os 5 géneros
     const genreQuery = topGenres.map(g => `tag:"${g}"`).join(' OR ');
-    const url = `${MUSICBRAINZ_API_BASE}/recording?query=${encodeURIComponent(genreQuery)}&limit=200&fmt=json`;
+    const url = `https://musicbrainz.org/ws/2/recording?query=${encodeURIComponent(genreQuery)}&limit=300&fmt=json`;
 
-    const res = await fetch(url, fetchOptions);
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
     if (!res.ok) return null;
 
     const data = await res.json();
     const recordings: any[] = data.recordings || [];
     if (recordings.length === 0) return null;
 
-    // Ordena todas as gravações por rating.count (quando disponível), desc
+    // Ordena por rating.count
     const recordingsSorted = recordings.slice().sort((a, b) => {
-      const aCount = (a.rating && typeof a.rating.count === 'number') ? a.rating.count : 0;
-      const bCount = (b.rating && typeof b.rating.count === 'number') ? b.rating.count : 0;
+      const aCount = a.rating?.count || 0;
+      const bCount = b.rating?.count || 0;
       return bCount - aCount;
     });
 
-    // Seleciona as até 200 mais populares
+    // Seleciona as top 200
     const topN = recordingsSorted.slice(0, Math.min(200, recordingsSorted.length));
-    const choice = topN[Math.floor(Math.random() * topN.length)];
-    if (!choice) return null;
 
-    // Extrair artista principal de artist-credit
+    // Filtra títulos e artistas já usados
+    const filtered = topN.filter(r => {
+      const title = r.title?.trim();
+      const artistCredit = r['artist-credit'] || [];
+      const artistName = artistCredit[0]?.name || r.artist?.name || '';
+      return title && artistName && !usedTitles.has(title) && !usedArtists.has(artistName);
+    });
+
+    if (filtered.length === 0) return null;
+
+    const choice = filtered[Math.floor(Math.random() * filtered.length)];
     const artistCredit = choice['artist-credit'] || [];
-    let artistName = '';
-    if (artistCredit.length > 0) {
-      // normalmente o primeiro é o artista principal
-      const first = artistCredit[0];
-      artistName = first.name || (first.artist && first.artist.name) || '';
-    } else if (choice['artist'] && choice['artist'].name) {
-      artistName = choice['artist'].name;
-    }
+    const artistName = artistCredit[0]?.name || choice.artist?.name || 'Unknown Artist';
+    const title = choice.title || 'Unknown Title';
 
-    return {
-      title: choice.title || 'Unknown Title',
-      artist: artistName || 'Unknown Artist',
-    };
+    return { title, artist: artistName };
   } catch (err) {
-    // Não alteramos comportamento existente, apenas log e devolvemos null
-    // (chamador deve tratar null)
-    // eslint-disable-next-line no-console
     console.error('fetchRandomPopularTrack error:', err);
     return null;
   }
 };
+
 
