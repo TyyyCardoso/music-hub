@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, SkipForward, Trophy, Music, Type } from "lucide-react";
+import { Play, SkipForward, Trophy, Music, Type, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import MiniPlayer from "@/components/ui/miniplayer";
 
@@ -197,10 +197,23 @@ const Game = () => {
         </div>
 
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2 text-xl">
-            <Trophy className="text-accent" />
-            <span className="font-bold">Pontuação: {score}/{songs.length}</span>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetGame}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Button>
+
+            <div className="flex items-center gap-2 text-xl">
+              <Trophy className="text-accent" />
+              <span className="font-bold">Pontuação: {score}/{songs.length}</span>
+            </div>
           </div>
+
           <span className="text-muted-foreground">
             Pergunta {currentSong + 1} de {songs.length}
           </span>
