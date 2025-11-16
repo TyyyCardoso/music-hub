@@ -1,51 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, SkipForward, Trophy, Music, Type, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import MiniPlayer from "@/components/ui/miniplayer";
-
+import { fetchRandomPopularTrack } from '@/lib/api/musicBrainz';
 
 interface Song {
   title: string;
   artist: string;
-  options: string[];
+  titleOptions: string[];
+  artistOptions: string[];
   correctAnswer: string;
-  audioUrl?: string;
+  correctArtist: string;
 }
-
-const songs: Song[] = [
-  {
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    options: ["Drake", "The Weeknd", "Post Malone", "Ed Sheeran"],
-    correctAnswer: "The Weeknd",
-  },
-  {
-    title: "Shape of You",
-    artist: "Ed Sheeran",
-    options: ["Justin Bieber", "Ed Sheeran", "Shawn Mendes", "Charlie Puth"],
-    correctAnswer: "Ed Sheeran",
-  },
-  {
-    title: "Rolling in the Deep",
-    artist: "Adele",
-    options: ["Taylor Swift", "Beyoncé", "Adele", "Ariana Grande"],
-    correctAnswer: "Adele",
-  },
-  {
-    title: "Levitating",
-    artist: "Dua Lipa",
-    options: ["Dua Lipa", "Olivia Rodrigo", "Billie Eilish", "Doja Cat"],
-    correctAnswer: "Dua Lipa",
-  },
-  {
-    title: "Bad Guy",
-    artist: "Billie Eilish",
-    options: ["Billie Eilish", "Halsey", "Lorde", "Lana Del Rey"],
-    correctAnswer: "Billie Eilish",
-  },
-];
 
 type GameMode = "name" | "sound" | null;
 
@@ -56,21 +24,96 @@ const Game = () => {
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [gameMode, setGameMode] = useState<GameMode>(null);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [loadingSongs, setLoadingSongs] = useState(true);
+
+  const pickRandom = <T,>(arr: T[], n: number) => {
+    const clone = [...arr];
+    for (let i = clone.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [clone[i], clone[j]] = [clone[j], clone[i]];
+    }
+    return clone.slice(0, n);
+  };
+
+  const loadSongs = async () => {
+    try {
+      setLoadingSongs(true);
+      const count = 10; // nº de perguntas
+      const final: Song[] = [];
+      const usedTitles = new Set<string>(); // para não repetir músicas no questionário
+
+      while (final.length < count) {
+        const options: { title: string; artist: string }[] = [];
+        const artistsSet = new Set<string>();
+
+        // tenta criar 4 opções únicas de artistas/músicas para esta pergunta
+        while (options.length < 4) {
+          const track = await fetchRandomPopularTrack();
+          if (!track?.title || !track?.artist) continue;
+          const title = track.title.trim();
+          const artist = track.artist.trim();
+
+          if (usedTitles.has(title)) continue; // já usada no questionário
+          if (artistsSet.has(artist)) continue; // já usada nesta pergunta
+
+          options.push({ title, artist });
+          artistsSet.add(artist);
+        }
+
+        // seleciona aleatoriamente a resposta correta
+        const correctIndex = Math.floor(Math.random() * 4);
+        const correctSong = options[correctIndex];
+
+        // adiciona música ao set global de títulos usados
+        usedTitles.add(correctSong.title);
+
+        final.push({
+          title: correctSong.title,
+          artist: correctSong.artist,
+          titleOptions: options.map(o => o.title),
+          artistOptions: options.map(o => o.artist),
+          correctAnswer: correctSong.title,
+          correctArtist: correctSong.artist,
+        });
+      }
+
+      setSongs(final);
+    } catch (err) {
+      console.error("Erro ao carregar músicas", err);
+    } finally {
+      setLoadingSongs(false);
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    loadSongs();
+  }, []);
 
   const handleAnswer = (answer: string) => {
     if (answered) return;
-    
     setSelectedAnswer(answer);
     setAnswered(true);
 
-    if (answer === songs[currentSong].correctAnswer) {
+    const correct = gameMode === "sound"
+      ? songs[currentSong].correctAnswer
+      : songs[currentSong].correctArtist;
+
+    if (answer === correct) {
       setScore(score + 1);
       toast.success("Correto! 🎉", {
-        description: `É ${songs[currentSong].title} de ${songs[currentSong].artist}`,
+        description: gameMode === "sound"
+          ? `A música correta era "${songs[currentSong].correctAnswer}"`
+          : `O artista correto era "${songs[currentSong].artist}"`,
       });
     } else {
       toast.error("Resposta errada!", {
-        description: `A resposta correta era ${songs[currentSong].correctAnswer}`,
+        description: gameMode === "sound"
+          ? `A música correta era "${songs[currentSong].correctAnswer}"`
+          : `O artista correto era "${songs[currentSong].artist}"`,
       });
     }
   };
@@ -95,6 +138,7 @@ const Game = () => {
     setAnswered(false);
     setSelectedAnswer(null);
     setGameMode(null);
+    loadSongs();
   };
 
   const startGame = (mode: GameMode) => {
@@ -108,47 +152,43 @@ const Game = () => {
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="text-center mb-12">
             <h1 className="text-5xl font-bold mb-4 gradient-text">Adivinhe a Música</h1>
-            <p className="text-xl text-muted-foreground">
-              Teste o seu conhecimento musical!
-            </p>
+            <p className="text-xl text-muted-foreground">Teste o seu conhecimento musical!</p>
           </div>
 
           {!gameMode ? (
             <Card className="card-glow">
               <CardHeader className="text-center">
                 <CardTitle className="text-3xl mb-4">Escolha o Modo de Jogo</CardTitle>
-                <CardDescription className="text-lg">
-                  Selecione como quer jogar
-                </CardDescription>
               </CardHeader>
+
               <CardContent className="grid md:grid-cols-2 gap-4">
-                <Card className="border-2 hover:border-primary transition-colors cursor-pointer" onClick={() => startGame("name")}>
+                {/* Modo Nome */}
+                <Card
+                  className="border-2 hover:border-primary transition-colors cursor-pointer"
+                  onClick={() => !loadingSongs && startGame("name")}
+                >
                   <CardHeader className="text-center">
                     <Type className="w-12 h-12 mx-auto mb-4 text-primary" />
                     <CardTitle className="text-2xl">Modo Nome</CardTitle>
-                    <CardDescription>
-                      Veja o nome da música e adivinhe o artista
-                    </CardDescription>
+                    <CardDescription>Veja o nome da música e adivinhe o artista</CardDescription>
                   </CardHeader>
                   <CardContent className="flex justify-center">
-                    <Button size="lg" className="w-full">
-                      Jogar
-                    </Button>
+                    <Button size="lg" className="w-full">Jogar</Button>
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-secondary transition-colors cursor-pointer" onClick={() => startGame("sound")}>
+                {/* Modo Som */}
+                <Card
+                  className="border-2 hover:border-secondary transition-colors cursor-pointer"
+                  onClick={() => !loadingSongs && startGame("sound")}
+                >
                   <CardHeader className="text-center">
                     <Music className="w-12 h-12 mx-auto mb-4 text-secondary" />
                     <CardTitle className="text-2xl">Modo Som</CardTitle>
-                    <CardDescription>
-                      Ouça a música e adivinhe o artista
-                    </CardDescription>
+                    <CardDescription>Ouça a música e adivinhe o nome</CardDescription>
                   </CardHeader>
                   <CardContent className="flex justify-center">
-                    <Button size="lg" variant="secondary" className="w-full">
-                      Jogar
-                    </Button>
+                    <Button size="lg" variant="secondary" className="w-full">Jogar</Button>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -157,27 +197,18 @@ const Game = () => {
             <Card className="card-glow">
               <CardHeader className="text-center">
                 <CardTitle className="text-3xl mb-4">Pronto para Jogar?</CardTitle>
-                <CardDescription className="text-lg">
-                  Identifique o artista de cada música. Vamos ver quantas acerta!
-                </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <Button
                   size="lg"
-                  onClick={() => setGameStarted(true)}
-                  className="text-lg px-8 py-6"
+                  onClick={() => !loadingSongs && setGameStarted(true)}
+                  disabled={loadingSongs}
                 >
                   <Play className="mr-2" />
-                  Começar Jogo
+                  {loadingSongs ? 'A carregar...' : 'Começar Jogo'}
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => setGameMode(null)}
-                  className="text-lg px-8 py-6"
-                >
-                  Voltar
-                </Button>
+
+                <Button size="lg" variant="outline" onClick={() => setGameMode(null)}>Voltar</Button>
               </CardContent>
             </Card>
           )}
@@ -186,9 +217,11 @@ const Game = () => {
     );
   }
 
+  /* ---------------- JOGO EM PROGRESSO ---------------- */
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-3xl">
+
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 gradient-text">Adivinhe a Música</h1>
           <p className="text-xl text-muted-foreground">
@@ -197,21 +230,13 @@ const Game = () => {
         </div>
 
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetGame}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar
-            </Button>
+          <Button variant="ghost" size="sm" onClick={resetGame}>
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </Button>
 
-            <div className="flex items-center gap-2 text-xl">
-              <Trophy className="text-accent" />
-              <span className="font-bold">Pontuação: {score}/{songs.length}</span>
-            </div>
+          <div className="flex items-center gap-2 text-xl">
+            <Trophy className="text-accent" />
+            <span className="font-bold">Pontuação: {score}/{songs.length}</span>
           </div>
 
           <span className="text-muted-foreground">
@@ -221,27 +246,33 @@ const Game = () => {
 
         <Card className="card-glow">
           <CardHeader className="text-center">
-          <CardTitle className="text-3xl gradient-text mb-4">
-            {gameMode === "name" ? songs[currentSong].title : "♫ Ouça a música ♫"}
-          </CardTitle>
+
+            <CardTitle className="text-3xl gradient-text mb-4">
+              {gameMode === "sound"
+                ? `♫ Ouça e adivinhe o nome ♫`
+                : songs[currentSong].title}
+            </CardTitle>
+
+            {/* Player no modo sound */}
             {gameMode === "sound" && (
-              <div>
-                <MiniPlayer songTitle={songs[currentSong].title}/>
-              </div>
+                <MiniPlayer songTitle={songs[currentSong].title} />
             )}
 
-  <CardDescription className="text-lg">
-    Quem é o artista?
-  </CardDescription>
-</CardHeader>
+            <CardDescription className="text-lg">
+              {gameMode === "sound" ? "Qual é o nome da música?" : "Quem é o artista?"}
+            </CardDescription>
+
+          </CardHeader>
 
           <CardContent className="space-y-4">
-            {songs[currentSong].options.map((option) => (
+            {(gameMode === "sound" ? songs[currentSong].titleOptions : songs[currentSong].artistOptions).map((option) => (
               <Button
                 key={option}
                 variant={
                   answered
-                    ? option === songs[currentSong].correctAnswer
+                    ? option === (gameMode === "sound"
+                        ? songs[currentSong].correctAnswer
+                        : songs[currentSong].correctArtist)
                       ? "default"
                       : option === selectedAnswer
                       ? "destructive"
@@ -257,22 +288,10 @@ const Game = () => {
             ))}
 
             {answered && (
-              <Button
-                onClick={nextSong}
-                size="lg"
-                className="w-full mt-6"
-              >
-                {currentSong < songs.length - 1 ? (
-                  <>
-                    <SkipForward className="mr-2" />
-                    Próxima Música
-                  </>
-                ) : (
-                  <>
-                    <Trophy className="mr-2" />
-                    Terminar Jogo
-                  </>
-                )}
+              <Button onClick={nextSong} size="lg" className="w-full mt-6">
+                {currentSong < songs.length - 1
+                  ? (<><SkipForward className="mr-2" /> Próxima Música</>)
+                  : (<><Trophy className="mr-2" /> Terminar Jogo</>)}
               </Button>
             )}
           </CardContent>

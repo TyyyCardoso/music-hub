@@ -96,3 +96,57 @@ export const fetchMusicData = async (
     funFact: "",
   };
 };
+
+/**
+ * Busca uma música aleatória dos 5 géneros mais populares mundialmente.
+ * Ordena por rating e escolhe aleatoriamente uma das top 200.
+ * Retorna um objecto com `title` e `artist` ou `null` se não encontrar.
+ */export const fetchRandomPopularTrack = async (
+  usedTitles: Set<string> = new Set(),
+  usedArtists: Set<string> = new Set()
+): Promise<{ title: string; artist: string } | null> => {
+  try {
+    const topGenres = ['pop', 'rock', 'hip-hop', 'electronic', 'dance'];
+    const genreQuery = topGenres.map(g => `tag:"${g}"`).join(' OR ');
+    const url = `https://musicbrainz.org/ws/2/recording?query=${encodeURIComponent(genreQuery)}&limit=300&fmt=json`;
+
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const recordings: any[] = data.recordings || [];
+    if (recordings.length === 0) return null;
+
+    // Ordena por rating.count
+    const recordingsSorted = recordings.slice().sort((a, b) => {
+      const aCount = a.rating?.count || 0;
+      const bCount = b.rating?.count || 0;
+      return bCount - aCount;
+    });
+
+    // Seleciona as top 200
+    const topN = recordingsSorted.slice(0, Math.min(200, recordingsSorted.length));
+
+    // Filtra títulos e artistas já usados
+    const filtered = topN.filter(r => {
+      const title = r.title?.trim();
+      const artistCredit = r['artist-credit'] || [];
+      const artistName = artistCredit[0]?.name || r.artist?.name || '';
+      return title && artistName && !usedTitles.has(title) && !usedArtists.has(artistName);
+    });
+
+    if (filtered.length === 0) return null;
+
+    const choice = filtered[Math.floor(Math.random() * filtered.length)];
+    const artistCredit = choice['artist-credit'] || [];
+    const artistName = artistCredit[0]?.name || choice.artist?.name || 'Unknown Artist';
+    const title = choice.title || 'Unknown Title';
+
+    return { title, artist: artistName };
+  } catch (err) {
+    console.error('fetchRandomPopularTrack error:', err);
+    return null;
+  }
+};
+
+
