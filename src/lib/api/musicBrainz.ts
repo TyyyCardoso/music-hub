@@ -96,3 +96,61 @@ export const fetchMusicData = async (
     funFact: "",
   };
 };
+
+/**
+ * Busca uma música aleatória dos 5 géneros mais populares mundialmente.
+ * Ordena por rating e escolhe aleatoriamente uma das top 200.
+ * Retorna um objecto com `title` e `artist` ou `null` se não encontrar.
+ */
+export const fetchRandomPopularTrack = async (): Promise<{ title: string; artist: string } | null> => {
+  try {
+    // Top 5 géneros mais populares mundialmente
+    const topGenres = ['pop', 'rock', 'hip-hop', 'electronic', 'dance'];
+    
+    // Monta query OR com os 5 géneros
+    const genreQuery = topGenres.map(g => `tag:"${g}"`).join(' OR ');
+    const url = `${MUSICBRAINZ_API_BASE}/recording?query=${encodeURIComponent(genreQuery)}&limit=200&fmt=json`;
+
+    const res = await fetch(url, fetchOptions);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const recordings: any[] = data.recordings || [];
+    if (recordings.length === 0) return null;
+
+    // Ordena todas as gravações por rating.count (quando disponível), desc
+    const recordingsSorted = recordings.slice().sort((a, b) => {
+      const aCount = (a.rating && typeof a.rating.count === 'number') ? a.rating.count : 0;
+      const bCount = (b.rating && typeof b.rating.count === 'number') ? b.rating.count : 0;
+      return bCount - aCount;
+    });
+
+    // Seleciona as até 200 mais populares
+    const topN = recordingsSorted.slice(0, Math.min(200, recordingsSorted.length));
+    const choice = topN[Math.floor(Math.random() * topN.length)];
+    if (!choice) return null;
+
+    // Extrair artista principal de artist-credit
+    const artistCredit = choice['artist-credit'] || [];
+    let artistName = '';
+    if (artistCredit.length > 0) {
+      // normalmente o primeiro é o artista principal
+      const first = artistCredit[0];
+      artistName = first.name || (first.artist && first.artist.name) || '';
+    } else if (choice['artist'] && choice['artist'].name) {
+      artistName = choice['artist'].name;
+    }
+
+    return {
+      title: choice.title || 'Unknown Title',
+      artist: artistName || 'Unknown Artist',
+    };
+  } catch (err) {
+    // Não alteramos comportamento existente, apenas log e devolvemos null
+    // (chamador deve tratar null)
+    // eslint-disable-next-line no-console
+    console.error('fetchRandomPopularTrack error:', err);
+    return null;
+  }
+};
+
