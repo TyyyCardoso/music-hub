@@ -108,3 +108,80 @@ All colors MUST be HSL.
     transform: translateY(-2px);
   }
 }
+
+/*about miniplayer-------------------------------------*/
+.rhap_container,
+.rhap_container * {
+  color: white !important;
+}
+
+/* Reduce outer spacing of the mini-player container (smaller margin/padding) */
+.mini-player .rhap_container {
+  margin: 0.4rem 0 !important; /* reduced from larger default */
+  padding-inline: 0.9rem !important;   /* keep inner padding small */
+}
+
+/* Remove empty additional controls container that creates unused space */
+/* Scope to .mini-player so other instances are not affected */
+.mini-player .rhap_additional-controls,.mini-player .rhap_volume-controls,
+.mini-player .rhap_volume-container {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.rhap_controls-section {
+    display: flex !important;
+    flex: auto 0 0  !important;
+    align-items: center !important;
+    align-items: center !important;
+}
+
+
+/* Force progress track and filled part to be visible inside the mini-player */
+/* Make progress use available flex space so it can occupy the full width */
+.rhap_progress-section {
+  flex: 1 0 auto !important;
+  min-width: 0 !important;
+}
+.rhap_progress-bar,
+.rhap_progress-container {
+  height: 6px !important;
+}
+
+
+.rhap_progress-filled {
+  background: white !important;
+}
+
+.rhap_progress-indicator,
+.rhap_progress-indicator:hover {
+  background: rgb(255, 255, 255) !important;
+  box-shadow: none !important;
+}
+
+.rhap_play-pause-button svg {
+  width: 33px !important;
+  height: 33px !important;
+  stroke: none !important;
+}
+
+.rhap_progress-container,
+.rhap_progress-bar {
+  overflow: hidden !important;
+}
+
+.rhap_time {
+  color: white !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Remove background color from download progress bar inserted by the player */
+.rhap_download-progress {
+  background: none !important;
+  background-color: transparent !important;
+}
