@@ -141,6 +141,15 @@ const Game = () => {
     loadSongs();
   };
 
+  const resetCurrentRun = () => {
+    setCurrentSong(0);
+    setScore(0);
+    setAnswered(false);
+    setSelectedAnswer(null);
+    loadSongs();
+  };
+
+
   const startGame = (mode: GameMode) => {
     setGameMode(mode);
     setGameStarted(true);
@@ -230,19 +239,27 @@ const Game = () => {
         </div>
 
         <div className="flex justify-between items-center mb-6">
+          {/* Back button */}
           <Button variant="ghost" size="sm" onClick={resetGame}>
             <ArrowLeft className="w-4 h-4" /> Voltar
           </Button>
-
+          {/* NEW Reset button */}
+          <Button variant="outline" size="sm" onClick={resetCurrentRun}>
+            Reiniciar
+          </Button>
+          {/* Score info */}
           <div className="flex items-center gap-2 text-xl">
             <Trophy className="text-accent" />
-            <span className="font-bold">Pontuação: {score}/{songs.length}</span>
+            <span className="font-bold">
+              Pontuação: {score}/{songs.length}
+            </span>
           </div>
 
           <span className="text-muted-foreground">
             Pergunta {currentSong + 1} de {songs.length}
           </span>
         </div>
+
 
         <Card className="card-glow">
           <CardHeader className="text-center">
