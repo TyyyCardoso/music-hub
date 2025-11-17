@@ -6,6 +6,16 @@ import { toast } from "sonner";
 import MiniPlayer from "@/components/ui/miniplayer";
 import { fetchRandomPopularTrack } from '@/lib/api/musicBrainz';
 
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+
 interface Song {
   title: string;
   artist: string;
@@ -26,6 +36,8 @@ const Game = () => {
   const [gameMode, setGameMode] = useState<GameMode>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [loadingSongs, setLoadingSongs] = useState(true);
+  const [showFinishedPopup, setShowFinishedPopup] = useState(false);
+
 
   const pickRandom = <T,>(arr: T[], n: number) => {
     const clone = [...arr];
@@ -124,10 +136,11 @@ const Game = () => {
       setAnswered(false);
       setSelectedAnswer(null);
     } else {
-      toast.success(`Jogo terminado! Pontuação: ${score}/${songs.length}`, {
+      /*toast.success(`Jogo terminado! Pontuação: ${score}/${songs.length}`, {
         description: "Obrigado por jogar!",
       });
-      resetGame();
+      resetGame();*/
+      setShowFinishedPopup(true);
     }
   };
 
@@ -228,6 +241,35 @@ const Game = () => {
 
   /* ---------------- JOGO EM PROGRESSO ---------------- */
   return (
+    <>
+      <Dialog open={showFinishedPopup} onOpenChange={setShowFinishedPopup}>
+        <DialogContent className="text-center">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold flex flex-col items-center gap-2">
+              <Trophy className="w-10 h-10 text-yellow-500" />
+              Jogo Terminado!
+            </DialogTitle>
+
+            <DialogDescription className="text-xl mt-2">
+              A sua pontuação foi:
+            </DialogDescription>
+
+            <p className="text-4xl font-bold mt-4 mb-6">
+              {score} / {songs.length}
+            </p>
+          </DialogHeader>
+
+          <DialogFooter className="flex justify-center gap-4">
+            <Button onClick={() => { setShowFinishedPopup(false); resetCurrentRun(); }} size="lg">
+              Jogar Novamente
+            </Button>
+
+            <Button variant="outline" size="lg" onClick={() => { setShowFinishedPopup(false); resetGame(); }}>
+              Voltar ao Menu
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-3xl">
 
@@ -315,6 +357,7 @@ const Game = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };
 
