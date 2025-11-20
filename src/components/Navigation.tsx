@@ -5,6 +5,7 @@ const Navigation = () => {
   const navItems = [
     { to: "/", icon: Music, label: "Página principal" },
     { to: "/game", icon: Gamepad2, label: "Adivinhe a música" },
+    { to: "/ninjagame", icon: Gamepad2, label: "Vinyl Slasher" },
     { to: "/releases", icon: Calendar, label: "Lançamentos" },
     { to: "/news", icon: Newspaper, label: "Noticias" },
     { to: "/taylor-swift-tracker", icon: Plane, label: "Taylor Swift Tracker" },
