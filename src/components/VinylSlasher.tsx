@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import vinylPsychedelic from "@/assets/vinyl-psychedelic.png";
 import vinylGeometric from "@/assets/vinyl-geometric.png";
 import vinylRainbow from "@/assets/vinyl-rainbow.png";
+import shusuiImg from '@/assets/swords/shusui.png';
 
 interface Vinyl {
   id: number;
@@ -28,6 +29,8 @@ interface Particle {
 }
 
 export const VinylSlasher = () => {
+    // Game mode: 'points' or 'time'
+    const [mode, setMode] = useState<'points' | 'time' | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -74,7 +77,7 @@ export const VinylSlasher = () => {
     
     if (spawnType < 0.2) {
       // Spawn from middle bottom going straight up
-      x = canvas.width / 2 + (Math.random() - 0.5) * 200;
+      x = canvas.width / 2 + (Math.random() - 0.9) * 200;
       y = canvas.height - 50;
       vx = (Math.random() - 0.5) * 1.2;
       vy = -15 - Math.random() * 5;
@@ -104,9 +107,9 @@ export const VinylSlasher = () => {
 
   const createParticles = (x: number, y: number) => {
     const colors = ['#ff0080', '#00ffff', '#ffff00', '#ff00ff'];
-    for (let i = 0; i < 15; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 4;
+    for (let i = 0; i < 5; i++) {
+      const angle = Math.random() * Math.PI; // * 2;
+      const speed = 2;// + Math.random() * 2;
       particlesRef.current.push({
         x,
         y,
@@ -255,8 +258,8 @@ export const VinylSlasher = () => {
         createParticles(vinyl.x, vinyl.y);
         setScore(s => {
           const newScore = s + 10;
-          // Check if reached 500 points
-          if (newScore >= 500) {
+          // Points mode: end at 1000 points
+          if (mode === 'points' && newScore >= 1000) {
             const endTime = Date.now();
             setFinalTime(Math.floor((endTime - startTime) / 1000));
             setGameOver(true);
@@ -277,6 +280,14 @@ export const VinylSlasher = () => {
       return true;
     });
 
+    // Time mode: end after 60 seconds
+    if (mode === 'time' && elapsedTime >= 60) {
+      setGameOver(true);
+      setIsPlaying(false);
+      setFinalTime(60);
+      return;
+    }
+
     // Update and draw particles
     particlesRef.current = particlesRef.current.filter(particle => {
       particle.x += particle.vx;
@@ -293,17 +304,46 @@ export const VinylSlasher = () => {
 
     // Draw mouse trail
     if (mousePathRef.current.length > 1) {
-      ctx.strokeStyle = '#00ffff';
-      ctx.lineWidth = 3;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = '#00ffff';
+      // Draw triangle tip at start
+      const tip = mousePathRef.current[0];
+      const next = mousePathRef.current[1];
+      const angle = Math.atan2(next.y - tip.y, next.x - tip.x);
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(mousePathRef.current[0].x, mousePathRef.current[0].y);
-      for (let i = 1; i < mousePathRef.current.length; i++) {
-        ctx.lineTo(mousePathRef.current[i].x, mousePathRef.current[i].y);
+      ctx.moveTo(tip.x, tip.y);
+      ctx.lineTo(tip.x + Math.cos(angle + Math.PI / 6) * 24, tip.y + Math.sin(angle + Math.PI / 6) * 24);
+      ctx.lineTo(tip.x + Math.cos(angle - Math.PI / 6) * 24, tip.y + Math.sin(angle - Math.PI / 6) * 24);
+      ctx.closePath();
+      ctx.fillStyle = 'red';
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'red';
+      ctx.fill();
+      ctx.restore();
+
+      // Draw fading trail
+      ctx.save();
+      ctx.lineWidth = 16;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'red';
+      const len = mousePathRef.current.length;
+      for (let i = 1; i < len; i++) {
+        const p0 = mousePathRef.current[i - 1];
+        const p1 = mousePathRef.current[i];
+        // Fade out toward the end (tail)
+        const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+        grad.addColorStop(0, 'red');
+        grad.addColorStop(1, 'rgba(255,0,0,0)');
+        ctx.strokeStyle = grad;
+        ctx.globalAlpha = 1 - (len - i) / len;
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
       }
-      ctx.stroke();
+      ctx.globalAlpha = 1;
       ctx.shadowBlur = 0;
+      ctx.restore();
     }
 
     animationFrameRef.current = requestAnimationFrame(gameLoop);
@@ -342,22 +382,33 @@ export const VinylSlasher = () => {
   };
 
   useEffect(() => {
-    if (isPlaying) {
-      animationFrameRef.current = requestAnimationFrame(gameLoop);
-      
-      // Update elapsed time every 100ms
-      const timeInterval = setInterval(() => {
-        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-      }, 100);
-      
-      return () => {
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
+  if (isPlaying) {
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
+    // Update elapsed time every 100ms
+    const timeInterval = setInterval(() => {
+      setElapsedTime(prev => {
+        const newElapsed = Math.floor((Date.now() - startTime) / 1000);
+        if (mode === 'time' && newElapsed >= 60) {
+          setGameOver(true);
+          setIsPlaying(false);
+          setFinalTime(60);
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+          }
+          clearInterval(timeInterval);
+          return 60;
         }
-        clearInterval(timeInterval);
-      };
-    }
-  }, [isPlaying, startTime]);
+        return newElapsed;
+      });
+    }, 100);
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      clearInterval(timeInterval);
+    };
+  }
+}, [isPlaying, startTime, mode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -373,6 +424,21 @@ export const VinylSlasher = () => {
     return () => window.removeEventListener('resize', resize);
   }, []);
 
+  // Set cursor to zenith.png when game starts, revert when leaving
+useEffect(() => {
+  const canvas = canvasRef.current;
+    if (canvas) {
+      if (isPlaying) {
+        canvas.style.cursor = `url(${shusuiImg}) 24 24, auto`;
+      } else {
+        canvas.style.cursor = 'auto';
+      }
+    }
+  return () => {
+    if (canvas) canvas.style.cursor = 'auto';
+  };
+}, [isPlaying]);
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-game">
       <canvas
@@ -386,10 +452,15 @@ export const VinylSlasher = () => {
       <div className="absolute top-8 left-0 right-0 flex justify-between px-8 pointer-events-none z-10">
         <div className="flex flex-col gap-2">
           <div className="text-4xl font-bold text-accent drop-shadow-[0_0_10px_hsl(var(--accent))]">
-            {score} / 500
+            {mode === 'points' ? `${score} / 1000` : `${score} pontos`}
           </div>
           <div className="text-2xl font-bold text-primary drop-shadow-[0_0_10px_hsl(var(--primary))]">
-            {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+            {mode === 'time'
+                ? (() => {
+                    const remaining = Math.max(0, 60 - elapsedTime);
+                    return `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')}`;
+                  })()
+              : `${Math.floor(elapsedTime / 60)}:${(elapsedTime % 60).toString().padStart(2, '0')}`}
           </div>
         </div>
         <div className="flex gap-2">
@@ -409,28 +480,71 @@ export const VinylSlasher = () => {
             <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-neon drop-shadow-[0_0_20px_hsl(var(--primary))]">
               Vinyl Slasher
             </h1>
-            {gameOver && (
-              <div className="space-y-2">
-                <p className="text-4xl text-accent font-bold">
-                  Tempo: {Math.floor(finalTime / 60)}:{(finalTime % 60).toString().padStart(2, '0')}
-                </p>
-                <p className="text-2xl text-muted-foreground">
-                  Você alcançou 500 pontos!
-                </p>
+            {/* Mode selection */}
+            {!isPlaying && !mode && (
+              <div className="space-y-4">
+                <p className="text-2xl text-muted-foreground">Escolha o modo de jogo:</p>
+                <div className="flex justify-center gap-4">
+                  <Button size="lg" className="text-xl px-8 py-6" onClick={() => setMode('points')}>
+                    Pontos (1000 pontos)
+                  </Button>
+                  <Button size="lg" className="text-xl px-8 py-6" onClick={() => setMode('time')}>
+                    Tempo (1 minuto)
+                  </Button>
+                </div>
               </div>
             )}
-            {!gameOver && (
-              <p className="text-2xl text-muted-foreground">
-                Alcance 500 pontos o mais rápido possível!
-              </p>
+            {/* Game Over display */}
+            {gameOver && (
+              <div className="space-y-2">
+                {mode === 'points' ? (
+                  <>
+                    <p className="text-4xl text-accent font-bold">
+                      Tempo: {Math.floor(finalTime / 60)}:{(finalTime % 60).toString().padStart(2, '0')}
+                    </p>
+                    <p className="text-2xl text-muted-foreground">
+                      Você alcançou 1000 pontos!
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-4xl text-accent font-bold">
+                      Pontuação: {score}
+                    </p>
+                    <p className="text-2xl text-muted-foreground">
+                      1 minuto acabou!
+                    </p>
+                  </>
+                )}
+              </div>
             )}
-            <Button
-              onClick={startGame}
-              size="lg"
-              className="text-xl px-8 py-6 bg-primary hover:bg-primary/90 shadow-glow transition-all hover:scale-105"
-            >
-              {gameOver ? 'Jogar Novamente' : 'Começar'}
-            </Button>
+            {/* Start button */}
+            {!gameOver && mode && (
+              <>
+                <p className="text-2xl text-muted-foreground">
+                  {mode === 'points'
+                    ? 'Alcance 1000 pontos o mais rápido possível!'
+                    : 'Faça o máximo de pontos em 1 minuto!'}
+                </p>
+                <Button
+                  onClick={startGame}
+                  size="lg"
+                  className="text-xl px-8 py-6 bg-primary hover:bg-primary/90 shadow-glow transition-all hover:scale-105"
+                >
+                  Começar
+                </Button>
+              </>
+            )}
+            {/* Play again button */}
+            {gameOver && (
+              <Button
+                onClick={() => { setMode(null); setGameOver(false); }}
+                size="lg"
+                className="text-xl px-8 py-6 bg-primary hover:bg-primary/90 shadow-glow transition-all hover:scale-105"
+              >
+                Jogar Novamente
+              </Button>
+            )}
             <p className="text-muted-foreground text-sm">
               Arraste o mouse para cortar os vinis!
             </p>
