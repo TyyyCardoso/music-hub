@@ -4,6 +4,9 @@ import vinylPsychedelic from "@/assets/vinyl-psychedelic.png";
 import vinylGeometric from "@/assets/vinyl-geometric.png";
 import vinylRainbow from "@/assets/vinyl-rainbow.png";
 import shusuiImg from '@/assets/swords/shusui.png';
+import zenithImg from '@/assets/swords/zenith.png';
+import samehadaImg from '@/assets/swords/Samehada.png';
+import enmaImg from '@/assets/swords/enma.png';
 
 interface Vinyl {
   id: number;
@@ -31,6 +34,14 @@ interface Particle {
 export const VinylSlasher = () => {
     // Game mode: 'points' or 'time'
     const [mode, setMode] = useState<'points' | 'time' | null>(null);
+    // Sword selection
+    const swordOptions = [
+      { label: 'Shusui', value: 'shusui', img: shusuiImg },
+      { label: 'Zenith', value: 'zenith', img: zenithImg },
+      { label: 'Samehada', value: 'samehada', img: samehadaImg },
+      { label: 'Enma', value: 'enma', img: enmaImg },
+    ];
+    const [selectedSword, setSelectedSword] = useState<'shusui' | 'zenith' | 'samehada' | 'enma'>('shusui');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -304,44 +315,39 @@ export const VinylSlasher = () => {
 
     // Draw mouse trail
     if (mousePathRef.current.length > 1) {
-      // Draw triangle tip at start
-      const tip = mousePathRef.current[0];
-      const next = mousePathRef.current[1];
-      const angle = Math.atan2(next.y - tip.y, next.x - tip.x);
+      // Draw a single continuous line with fading effect
       ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(tip.x, tip.y);
-      ctx.lineTo(tip.x + Math.cos(angle + Math.PI / 6) * 24, tip.y + Math.sin(angle + Math.PI / 6) * 24);
-      ctx.lineTo(tip.x + Math.cos(angle - Math.PI / 6) * 24, tip.y + Math.sin(angle - Math.PI / 6) * 24);
-      ctx.closePath();
-      ctx.fillStyle = 'red';
-      ctx.globalAlpha = 1;
+      ctx.lineWidth = 20;
       ctx.shadowBlur = 10;
-      ctx.shadowColor = 'red';
-      ctx.fill();
-      ctx.restore();
-
-      // Draw fading trail
-      ctx.save();
-      ctx.lineWidth = 16;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'red';
-      const len = mousePathRef.current.length;
-      for (let i = 1; i < len; i++) {
-        const p0 = mousePathRef.current[i - 1];
-        const p1 = mousePathRef.current[i];
-        // Fade out toward the end (tail)
-        const grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-        grad.addColorStop(0, 'red');
-        grad.addColorStop(1, 'rgba(255,0,0,0)');
-        ctx.strokeStyle = grad;
-        ctx.globalAlpha = 1 - (len - i) / len;
-        ctx.beginPath();
-        ctx.moveTo(p0.x, p0.y);
-        ctx.lineTo(p1.x, p1.y);
-        ctx.stroke();
+      let trailColor = 'red';
+      let rgbVal = '255,0,0';
+      if (selectedSword === 'zenith') {
+        trailColor = 'rgb(181,219,198)';
+        rgbVal = '181,219,198';
+      } else if (selectedSword === 'samehada') {
+        trailColor = 'rgb(96,125,139)';
+        rgbVal = '96,125,139';
+      } else if (selectedSword === 'enma') {
+        trailColor = 'rgb(255,255,255)';
+        rgbVal = '255,255,255';
       }
+      ctx.shadowColor = trailColor;
+      const len = mousePathRef.current.length;
+      ctx.beginPath();
+      ctx.moveTo(mousePathRef.current[0].x, mousePathRef.current[0].y);
+      for (let i = 1; i < len; i++) {
+        ctx.lineTo(mousePathRef.current[i].x, mousePathRef.current[i].y);
+      }
+      // Create gradient from cursor to tail with a strong, short fade
+      const start = mousePathRef.current[0];
+      const end = mousePathRef.current[len - 1];
+      const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+      grad.addColorStop(0, `rgba(${rgbVal},0)`);
+      grad.addColorStop(0.5, `rgba(${rgbVal},0)`);
+      grad.addColorStop(1, trailColor);
+      ctx.strokeStyle = grad;
       ctx.globalAlpha = 1;
+      ctx.stroke();
       ctx.shadowBlur = 0;
       ctx.restore();
     }
@@ -424,20 +430,23 @@ export const VinylSlasher = () => {
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  // Set cursor to zenith.png when game starts, revert when leaving
-useEffect(() => {
-  const canvas = canvasRef.current;
+  // Set cursor to selected sword when game starts, revert when leaving
+  useEffect(() => {
+    const canvas = canvasRef.current;
     if (canvas) {
       if (isPlaying) {
-        canvas.style.cursor = `url(${shusuiImg}) 24 24, auto`;
+        const swordObj = swordOptions.find(s => s.value === selectedSword);
+        if (swordObj) {
+          canvas.style.cursor = `url(${swordObj.img}) 24 24, auto`;
+        }
       } else {
         canvas.style.cursor = 'auto';
       }
     }
-  return () => {
-    if (canvas) canvas.style.cursor = 'auto';
-  };
-}, [isPlaying]);
+    return () => {
+      if (canvas) canvas.style.cursor = 'auto';
+    };
+  }, [isPlaying, selectedSword]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-game">
@@ -450,7 +459,7 @@ useEffect(() => {
       
       {/* HUD */}
       <div className="absolute top-8 left-0 right-0 flex justify-between px-8 pointer-events-none z-10">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mt-16">
           <div className="text-4xl font-bold text-accent drop-shadow-[0_0_10px_hsl(var(--accent))]">
             {mode === 'points' ? `${score} / 1000` : `${score} pontos`}
           </div>
@@ -484,13 +493,22 @@ useEffect(() => {
             {!isPlaying && !mode && (
               <div className="space-y-4">
                 <p className="text-2xl text-muted-foreground">Escolha o modo de jogo:</p>
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4 items-center">
                   <Button size="lg" className="text-xl px-8 py-6" onClick={() => setMode('points')}>
                     Pontos (1000 pontos)
                   </Button>
                   <Button size="lg" className="text-xl px-8 py-6" onClick={() => setMode('time')}>
                     Tempo (1 minuto)
                   </Button>
+                  <select
+                    className="ml-6 px-4 py-2 rounded-lg border border-primary text-xl bg-background text-primary shadow-glow"
+                    value={selectedSword}
+                    onChange={e => setSelectedSword(e.target.value as 'shusui' | 'zenith')}
+                  >
+                    {swordOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}
