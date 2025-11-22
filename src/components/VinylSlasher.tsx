@@ -8,6 +8,16 @@ import zenithImg from '@/assets/swords/zenith.png';
 import samehadaImg from '@/assets/swords/Samehada.png';
 import enmaImg from '@/assets/swords/enma.png';
 import antumbraImg from '@/assets/swords/antumbra.png';
+import albumsJSON from "@/assets/albums/albums.json";
+
+interface Album {
+  album: string;
+  artist: string;
+  tag?: string;
+  rank?: number;
+  file: string;
+  img?: HTMLImageElement;
+}
 
 interface Vinyl {
   id: number;
@@ -21,6 +31,7 @@ interface Vinyl {
   sliced: boolean;
   color: string;
   image?: HTMLImageElement;
+  album?: Album; 
 }
 
 interface Particle {
@@ -32,7 +43,18 @@ interface Particle {
   color: string;
 }
 
+const albumList: Album[] = albumsJSON.map(a => {
+  const img = new Image();
+  img.src = `/src/assets/albums/${a.file}`;
+  return { ...a, img };
+});
+
+
+
+
 export const VinylSlasher = () => {
+    // State dos álbuns cortados
+    const [cutAlbums, setCutAlbums] = useState<Album[]>([]);
     // Game mode: 'points' or 'time'
     const [mode, setMode] = useState<'points' | 'time' | null>(null);
     // Sword selection
@@ -78,12 +100,16 @@ export const VinylSlasher = () => {
     const radius = 35 + Math.random() * 30;
     const color = vinylColors[Math.floor(Math.random() * vinylColors.length)];
     
-    // 10% chance to have an iconic vinyl image
-    const hasImage = Math.random() < 0.1;
-    const image = hasImage && vinylImagesRef.current.length > 0
-      ? vinylImagesRef.current[Math.floor(Math.random() * vinylImagesRef.current.length)]
-      : undefined;
-    
+    // 10% chance de ser um álbum especial
+    let image: HTMLImageElement | undefined = undefined;
+    let vinylAlbum: Album | undefined = undefined;
+
+    if (Math.random() < 0.1) {
+      const chosen = albumList[Math.floor(Math.random() * albumList.length)];
+      image = chosen.img;
+      vinylAlbum = chosen;
+    }
+        
     // 20% chance to spawn from middle, 80% from sides
     const spawnType = Math.random();
     let x, y, vx, vy;
@@ -115,7 +141,9 @@ export const VinylSlasher = () => {
       sliced: false,
       color,
       image,
+      album: vinylAlbum, // <-- NOVO campo
     });
+
   };
 
   const createParticles = (x: number, y: number) => {
@@ -266,9 +294,20 @@ export const VinylSlasher = () => {
       vinyl.rotation += vinyl.rotationSpeed;
 
       // Check if sliced
-      if (checkSlice(vinyl)) {
+      if (checkSlice(vinyl)) { 
         vinyl.sliced = true;
         createParticles(vinyl.x, vinyl.y);
+
+        if (vinyl.album) {//album for cortado, guardar o álbum cortado
+          setCutAlbums(prev => {
+            // evita duplicados
+            if (!prev.find(a => a.album === vinyl.album!.album && a.artist === vinyl.album!.artist)) {
+              return [...prev, vinyl.album!];
+            }
+            return prev;
+          });
+        }
+
         setScore(s => {
           const newScore = s + 10;
           // Points mode: end at 1000 points
@@ -390,6 +429,7 @@ export const VinylSlasher = () => {
     particlesRef.current = [];
     mousePathRef.current = [];
     lastSpawnRef.current = 0;
+    setCutAlbums([]); // Reset cut albums at game start
   };
 
   useEffect(() => {
@@ -569,8 +609,24 @@ export const VinylSlasher = () => {
               </Button>
             )}
             <p className="text-muted-foreground text-sm">
-              Arraste o mouse para cortar os vinis!
+              Arraste o rato para cortar os vinis!
             </p>
+            {gameOver && cutAlbums.length > 0 && (
+              <div className="mt-4 text-left px-2">
+                <p className="text-lg font-bold mb-3">Álbuns Especiais Cortados:</p>
+                <div className="cut-albums-list mt-3 space-y-3 max-h-[50vh] overflow-y-auto">
+                  {cutAlbums.map(a => (
+                    <div key={a.file} className="flex items-center gap-3 text-left">
+                      <img src={a.img?.src} alt={a.album} className="w-16 h-16 object-cover rounded-lg shadow-md" />
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm">{a.album}</span>
+                        <span className="text-xs text-muted-foreground">{a.artist}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
