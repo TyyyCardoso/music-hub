@@ -7,6 +7,7 @@ import shusuiImg from '@/assets/swords/shusui.png';
 import zenithImg from '@/assets/swords/zenith.png';
 import samehadaImg from '@/assets/swords/Samehada.png';
 import enmaImg from '@/assets/swords/enma.png';
+import antumbraImg from '@/assets/swords/antumbra.png';
 
 interface Vinyl {
   id: number;
@@ -40,8 +41,9 @@ export const VinylSlasher = () => {
       { label: 'Zenith', value: 'zenith', img: zenithImg },
       { label: 'Samehada', value: 'samehada', img: samehadaImg },
       { label: 'Enma', value: 'enma', img: enmaImg },
+      { label: 'Antumbra', value: 'antumbra', img: antumbraImg },
     ];
-    const [selectedSword, setSelectedSword] = useState<'shusui' | 'zenith' | 'samehada' | 'enma'>('shusui');
+    const [selectedSword, setSelectedSword] = useState<'shusui' | 'zenith' | 'samehada' | 'enma' | 'antumbra'>('shusui');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -330,6 +332,9 @@ export const VinylSlasher = () => {
       } else if (selectedSword === 'enma') {
         trailColor = 'rgb(255,255,255)';
         rgbVal = '255,255,255';
+      } else if (selectedSword === 'antumbra') {
+        trailColor = 'rgb(173,216,230)';
+        rgbVal = '173,216,230';
       }
       ctx.shadowColor = trailColor;
       const len = mousePathRef.current.length;
@@ -503,7 +508,7 @@ export const VinylSlasher = () => {
                   <select
                     className="ml-6 px-4 py-2 rounded-lg border border-primary text-xl bg-background text-primary shadow-glow"
                     value={selectedSword}
-                    onChange={e => setSelectedSword(e.target.value as 'shusui' | 'zenith')}
+                    onChange={e => setSelectedSword(e.target.value as 'shusui' | 'zenith' | 'samehada' | 'enma' | 'antumbra')}
                   >
                     {swordOptions.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
