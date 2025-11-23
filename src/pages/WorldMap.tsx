@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useRef} from "react";
+import { useState, useCallback, memo, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   ComposableMap,
@@ -10,8 +10,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 // --- 1. TIPO RENOMEADO e importação da API ---
 import { musicDataByCountry, MusicInfo } from "@/data/musicData"; // Alterado de CountryMusic
-import { Lightbulb, Loader2 } from "lucide-react"; // Adicionado Loader2
+import { Lightbulb, Loader2, ChevronLeft, ChevronRight } from "lucide-react"; // Adicionado Loader2 e Icons
 import { fetchMusicData } from "@/lib/api/musicBrainz"; // Ajusta este caminho se necessário
+import { getArtistDetails, getArtistTopTracks, getArtistTopAlbums, ArtistDetails, LastFmTrack, LastFmAlbum } from "@/lib/api/lastfm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 // --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -97,6 +107,18 @@ const WorldMap = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // --- State for Artist Details Dialog ---
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const [artistDetails, setArtistDetails] = useState<ArtistDetails | null>(null);
+  const [isArtistLoading, setIsArtistLoading] = useState(false);
+  const [artistError, setArtistError] = useState<string | null>(null);
+
+  // Pagination State
+  const [tracksPage, setTracksPage] = useState(1);
+  const [albumsPage, setAlbumsPage] = useState(1);
+  const [isTracksLoading, setIsTracksLoading] = useState(false);
+  const [isAlbumsLoading, setIsAlbumsLoading] = useState(false);
+
   // Cache em memória para armazenar dados já carregados
   const cacheRef = useRef<Record<string, MusicInfo>>({});
 
@@ -126,7 +148,7 @@ const WorldMap = () => {
       cacheRef.current[countryCode] = data;
       setSelectedCountry(data);
       console.log(data);
-    } catch (err:any) {
+    } catch (err: any) {
       let message = "Tenta novamente dentro de alguns segundos.";
       setError(message);
     } finally {
@@ -141,6 +163,52 @@ const WorldMap = () => {
   const handleCountryLeave = useCallback(() => {
     setHoveredCountry(null);
   }, []);
+
+  const handleArtistClick = async (artistName: string) => {
+    setSelectedArtist(artistName);
+    setIsArtistLoading(true);
+    setArtistError(null);
+    setArtistDetails(null);
+    setTracksPage(1);
+    setAlbumsPage(1);
+
+    try {
+      const details = await getArtistDetails(artistName);
+      setArtistDetails(details);
+    } catch (err) {
+      setArtistError("Não foi possível carregar os detalhes do artista.");
+    } finally {
+      setIsArtistLoading(false);
+    }
+  };
+
+  const handleTrackPageChange = async (newPage: number) => {
+    if (!selectedArtist || !artistDetails) return;
+    setIsTracksLoading(true);
+    try {
+      const data = await getArtistTopTracks(selectedArtist, newPage);
+      setArtistDetails({ ...artistDetails, topTracks: data.toptracks });
+      setTracksPage(newPage);
+    } catch (error) {
+      console.error("Failed to change track page", error);
+    } finally {
+      setIsTracksLoading(false);
+    }
+  };
+
+  const handleAlbumPageChange = async (newPage: number) => {
+    if (!selectedArtist || !artistDetails) return;
+    setIsAlbumsLoading(true);
+    try {
+      const data = await getArtistTopAlbums(selectedArtist, newPage);
+      setArtistDetails({ ...artistDetails, topAlbums: data.topalbums });
+      setAlbumsPage(newPage);
+    } catch (error) {
+      console.error("Failed to change album page", error);
+    } finally {
+      setIsAlbumsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -195,7 +263,7 @@ const WorldMap = () => {
             </CardContent>
           </Card>
 
-         {/* Info Section */}
+          {/* Info Section */}
           <div className="space-y-6">
             {isLoading ? (
               <Card className="card-glow p-10 flex justify-center">
@@ -227,16 +295,15 @@ const WorldMap = () => {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedCountry.artists.map((artist) => {
-                        const artistId = artist.toLowerCase().replace(/\s+/g, "-");
                         return (
-                          <Link key={artist} to={`/artist/${artistId}`}>
-                            <Badge
-                              variant="secondary"
-                              className="text-base py-2 px-4 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                            >
-                              {artist}
-                            </Badge>
-                          </Link>
+                          <Badge
+                            key={artist}
+                            variant="secondary"
+                            className="text-base py-2 px-4 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                            onClick={() => handleArtistClick(artist)}
+                          >
+                            {artist}
+                          </Badge>
                         );
                       })}
                     </div>
@@ -278,6 +345,141 @@ const WorldMap = () => {
           </div>
 
         </div>
+
+        {/* Artist Details Dialog */}
+        <Dialog open={!!selectedArtist} onOpenChange={(open) => !open && setSelectedArtist(null)}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-bold gradient-text">{selectedArtist}</DialogTitle>
+              <DialogDescription>
+                Top músicas e álbuns mais populares no Last.fm
+              </DialogDescription>
+            </DialogHeader>
+
+            {isArtistLoading ? (
+              <div className="flex justify-center p-10">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </div>
+            ) : artistError ? (
+              <div className="p-6 text-destructive text-center">
+                {artistError}
+              </div>
+            ) : artistDetails ? (
+              <ScrollArea className="flex-1 pr-4">
+                <div className="grid md:grid-cols-2 gap-6 p-1">
+                  {/* Top Tracks */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
+                        🎵 Top Músicas
+                      </h3>
+                      {/* Pagination Controls */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleTrackPageChange(tracksPage - 1)}
+                          disabled={tracksPage === 1 || isTracksLoading}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="text-sm font-medium min-w-[3ch] text-center">{tracksPage}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleTrackPageChange(tracksPage + 1)}
+                          disabled={isTracksLoading || (artistDetails.topTracks.track.length < 5 && tracksPage > 1)} // Simple disable logic
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 min-h-[300px]">
+                      {isTracksLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        </div>
+                      ) : (
+                        artistDetails.topTracks.track.map((track: LastFmTrack, i: number) => (
+                          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                            <span className="text-2xl font-bold text-muted-foreground w-8 text-center">{(tracksPage - 1) * 5 + i + 1}</span>
+                            <div className="overflow-hidden">
+                              <p className="font-medium truncate">{track.name}</p>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {parseInt(track.listeners).toLocaleString()} ouvintes
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Top Albums */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold text-secondary flex items-center gap-2">
+                        💿 Top Álbuns
+                      </h3>
+                      {/* Pagination Controls */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleAlbumPageChange(albumsPage - 1)}
+                          disabled={albumsPage === 1 || isAlbumsLoading}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="text-sm font-medium min-w-[3ch] text-center">{albumsPage}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleAlbumPageChange(albumsPage + 1)}
+                          disabled={isAlbumsLoading || (artistDetails.topAlbums.album.length < 5 && albumsPage > 1)}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 min-h-[300px]">
+                      {isAlbumsLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                          <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+                        </div>
+                      ) : (
+                        artistDetails.topAlbums.album.map((album: LastFmAlbum, i: number) => (
+                          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                            <span className="text-2xl font-bold text-muted-foreground w-8 text-center">{(albumsPage - 1) * 5 + i + 1}</span>
+                            {album.image && album.image[1]["#text"] && (
+                              <img
+                                src={album.image[1]["#text"]}
+                                alt={album.name}
+                                className="w-12 h-12 rounded object-cover"
+                              />
+                            )}
+                            <div className="overflow-hidden">
+                              <p className="font-medium truncate">{album.name}</p>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {album.playcount ? parseInt(album.playcount.toString()).toLocaleString() + " plays" : ""}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+            ) : null}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
@@ -309,10 +511,10 @@ const TestApiButton = () => {
   };
 
   return (
-    
+
     <div className="p-4 border-2 border-dashed rounded-lg my-8">
       <h3 className="text-lg font-semibold mb-2">Painel de Teste da API</h3>
-     <button
+      <button
         onClick={handleTestClick}
         disabled={isLoading}
         className="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50 flex items-center gap-2"
