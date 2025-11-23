@@ -9,6 +9,9 @@ import samehadaImg from '@/assets/swords/Samehada.png';
 import enmaImg from '@/assets/swords/enma.png';
 import antumbraImg from '@/assets/swords/antumbra.png';
 import albumsJSON from "@/assets/albums/albums.json";
+import { AlbumCollectionDialog } from "./AlbumCollection.tsx";
+import { BookOpen } from "lucide-react";
+
 
 interface Album {
   album: string;
@@ -53,19 +56,32 @@ const albumList: Album[] = albumsJSON.map(a => {
 
 
 export const VinylSlasher = () => {
-    // State dos álbuns cortados
-    const [cutAlbums, setCutAlbums] = useState<Album[]>([]);
-    // Game mode: 'points' or 'time'
-    const [mode, setMode] = useState<'points' | 'time' | null>(null);
-    // Sword selection
-    const swordOptions = [
-      { label: 'Shusui', value: 'shusui', img: shusuiImg },
-      { label: 'Zenith', value: 'zenith', img: zenithImg },
-      { label: 'Samehada', value: 'samehada', img: samehadaImg },
-      { label: 'Enma', value: 'enma', img: enmaImg },
-      { label: 'Antumbra', value: 'antumbra', img: antumbraImg },
-    ];
-    const [selectedSword, setSelectedSword] = useState<'shusui' | 'zenith' | 'samehada' | 'enma' | 'antumbra'>('shusui');
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const [unlockedAlbums, setUnlockedAlbums] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("unlockedAlbums");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  useEffect(() => {// Persist unlocked albums
+    localStorage.setItem("unlockedAlbums", JSON.stringify([...unlockedAlbums]));
+  }, [unlockedAlbums]);
+
+  const unlockAlbum = (file: string) => { // Exemplo: ao cortar um vinil, desbloqueia álbum
+    setUnlockedAlbums(prev => new Set([...prev, file]));
+  };
+
+
+  const [cutAlbums, setCutAlbums] = useState<Album[]>([]); // State dos álbuns cortados
+  const [mode, setMode] = useState<'points' | 'time' | null>(null);// Game mode: 'points' or 'time'
+  // Sword selection
+  const swordOptions = [
+    { label: 'Shusui', value: 'shusui', img: shusuiImg },
+    { label: 'Zenith', value: 'zenith', img: zenithImg },
+    { label: 'Samehada', value: 'samehada', img: samehadaImg },
+    { label: 'Enma', value: 'enma', img: enmaImg },
+    { label: 'Antumbra', value: 'antumbra', img: antumbraImg },
+  ];
+  const [selectedSword, setSelectedSword] = useState<'shusui' | 'zenith' | 'samehada' | 'enma' | 'antumbra'>('shusui');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -92,6 +108,8 @@ export const VinylSlasher = () => {
       return img;
     });
   }, []);
+
+
 
   const spawnVinyl = () => {
     const canvas = canvasRef.current;
@@ -299,9 +317,9 @@ export const VinylSlasher = () => {
         createParticles(vinyl.x, vinyl.y);
 
         if (vinyl.album) {//album for cortado, guardar o álbum cortado
+          unlockAlbum(vinyl.album.file);
           setCutAlbums(prev => {
-            // evita duplicados
-            if (!prev.find(a => a.album === vinyl.album!.album && a.artist === vinyl.album!.artist)) {
+            if (!prev.find(a => a.file === vinyl.album!.file)) {
               return [...prev, vinyl.album!];
             }
             return prev;
@@ -337,6 +355,18 @@ export const VinylSlasher = () => {
       setGameOver(true);
       setIsPlaying(false);
       setFinalTime(60);
+      // Garantir que o utilizador recebe pelo menos 1 álbum novo
+      setCutAlbums(prev => {
+        const gotNewAlbum = prev.some(a => !unlockedAlbums.has(a.file));
+
+        if (!gotNewAlbum) {
+          const bonus = grantGuaranteedAlbum();
+          return bonus ? [...prev, bonus] : prev;
+        }
+
+        return prev;
+      });
+
       return;
     }
 
@@ -443,6 +473,17 @@ export const VinylSlasher = () => {
           setGameOver(true);
           setIsPlaying(false);
           setFinalTime(60);
+
+          
+          setCutAlbums(prev => {// Garantir que o utilizador recebe pelo menos 1 álbum novo
+            const gotNewAlbum = prev.some(a => !unlockedAlbums.has(a.file));
+            if (!gotNewAlbum) {
+              const bonus = grantGuaranteedAlbum();
+              return bonus ? [...prev, bonus] : prev;
+            }
+            return prev;
+          });
+
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
           }
@@ -493,6 +534,22 @@ export const VinylSlasher = () => {
     };
   }, [isPlaying, selectedSword]);
 
+  const grantGuaranteedAlbum = () => {
+    const unlocked = unlockedAlbums;
+    const lockedAlbums = albumList.filter(a => !unlocked.has(a.file));
+
+    if (lockedAlbums.length === 0) return null; // já tem tudo
+
+    // escolhe um álbum bloqueado aleatório
+    const chosen = lockedAlbums[Math.floor(Math.random() * lockedAlbums.length)];
+
+    // desbloqueia
+    unlockAlbum(chosen.file);
+
+    return chosen;
+  };
+
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-game">
       <canvas
@@ -526,10 +583,35 @@ export const VinylSlasher = () => {
           ))}
         </div>
       </div>
-
+      
       {/* Start/Game Over Screen */}
       {(!isPlaying || gameOver) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-20">
+        <div>
+          {/* Botão da coleção - sempre visível no menu ou game over */}
+          {!isPlaying && (
+            <div>
+              <button onClick={() => setCollectionOpen(true)}
+                className="
+                  absolute top-20 left-3 z-30
+                  p-3 rounded-xl
+                  bg-gradient-to-br from-pink-500 to-purple-600
+                  hover:from-pink-400 hover:to-purple-500
+                  shadow-xl flex items-center justify-center
+                "
+              >
+                <BookOpen className="w-8 h-8 text-white drop-shadow-lg" />
+              </button>
+
+              <AlbumCollectionDialog
+                open={collectionOpen}
+                onOpenChange={setCollectionOpen}
+                unlockedAlbums={unlockedAlbums}
+                setUnlockedAlbums={setUnlockedAlbums}
+              />
+            </div>
+          )}
+
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-20">
           <div className="text-center space-y-6">
             <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-neon drop-shadow-[0_0_20px_hsl(var(--primary))]">
               Vinyl Slasher
@@ -628,6 +710,7 @@ export const VinylSlasher = () => {
               </div>
             )}
           </div>
+        </div>
         </div>
       )}
     </div>
