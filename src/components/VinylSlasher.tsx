@@ -110,7 +110,6 @@ export const VinylSlasher = () => {
   }, []);
 
 
-
   const spawnVinyl = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
