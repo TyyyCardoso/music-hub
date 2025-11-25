@@ -1,0 +1,352 @@
+[
+  {
+    "album": "Thriller",
+    "artist": "Michael Jackson",
+    "tag": "pop",
+    "rank": 1,
+    "file": "Thriller-Michael Jackson.jpg"
+  },
+  {
+    "album": "The Rise and Fall of a Midwest Princess",
+    "artist": "Chappell Roan",
+    "tag": "pop",
+    "rank": 2,
+    "file": "The Rise and Fall of a Midwest Princess-Chappell Roan.jpg"
+  },
+  {
+    "album": "Off the Wall",
+    "artist": "Michael Jackson",
+    "tag": "pop",
+    "rank": 3,
+    "file": "Off the Wall-Michael Jackson.jpg"
+  },
+  {
+    "album": "Fever",
+    "artist": "Kylie Minogue",
+    "tag": "pop",
+    "rank": 4,
+    "file": "Fever-Kylie Minogue.jpg"
+  },
+  {
+    "album": "Unwritten",
+    "artist": "Natasha Bedingfield",
+    "tag": "pop",
+    "rank": 5,
+    "file": "Unwritten-Natasha Bedingfield.jpg"
+  },
+  {
+    "album": "The Dutchess",
+    "artist": "Fergie",
+    "tag": "pop",
+    "rank": 6,
+    "file": "The Dutchess-Fergie.jpg"
+  },
+  {
+    "album": "My World 2.0",
+    "artist": "Justin Bieber",
+    "tag": "pop",
+    "rank": 7,
+    "file": "My World 2.0-Justin Bieber.jpg"
+  },
+  {
+    "album": "Queen of the Clouds",
+    "artist": "Tove Lo",
+    "tag": "pop",
+    "rank": 8,
+    "file": "Queen of the Clouds-Tove Lo.jpg"
+  },
+  {
+    "album": "Number Ones",
+    "artist": "Michael Jackson",
+    "tag": "pop",
+    "rank": 9,
+    "file": "Number Ones-Michael Jackson.jpg"
+  },
+  {
+    "album": "Spice",
+    "artist": "Spice Girls",
+    "tag": "pop",
+    "rank": 10,
+    "file": "Spice-Spice Girls.jpg"
+  },
+  {
+    "album": "RIOT!",
+    "artist": "Paramore",
+    "tag": "rock",
+    "rank": 11,
+    "file": "RIOT!-Paramore.jpg"
+  },
+  {
+    "album": "The Colour and the Shape",
+    "artist": "Foo Fighters",
+    "tag": "rock",
+    "rank": 12,
+    "file": "The Colour and the Shape-Foo Fighters.jpg"
+  },
+  {
+    "album": "Abbey Road (Remastered)",
+    "artist": "The Beatles",
+    "tag": "rock",
+    "rank": 13,
+    "file": "Abbey Road (Remastered)-The Beatles.jpg"
+  },
+  {
+    "album": "The Beatles (Remastered)",
+    "artist": "The Beatles",
+    "tag": "rock",
+    "rank": 14,
+    "file": "The Beatles (Remastered)-The Beatles.jpg"
+  },
+  {
+    "album": "Viva la Vida or Death and All His Friends",
+    "artist": "Coldplay",
+    "tag": "rock",
+    "rank": 15,
+    "file": "Viva la Vida or Death and All His Friends-Coldplay.jpg"
+  },
+  {
+    "album": "Stadium Arcadium",
+    "artist": "Red Hot Chili Peppers",
+    "tag": "rock",
+    "rank": 16,
+    "file": "Stadium Arcadium-Red Hot Chili Peppers.jpg"
+  },
+  {
+    "album": "Make Yourself",
+    "artist": "Incubus",
+    "tag": "rock",
+    "rank": 17,
+    "file": "Make Yourself-Incubus.jpg"
+  },
+  {
+    "album": "All We Know Is Falling",
+    "artist": "Paramore",
+    "tag": "rock",
+    "rank": 18,
+    "file": "All We Know Is Falling-Paramore.jpg"
+  },
+  {
+    "album": "Elephant",
+    "artist": "The White Stripes",
+    "tag": "rock",
+    "rank": 19,
+    "file": "Elephant-The White Stripes.jpg"
+  },
+  {
+    "album": "Use Your Illusion I",
+    "artist": "Guns N' Roses",
+    "tag": "rock",
+    "rank": 20,
+    "file": "Use Your Illusion I-Guns N' Roses.jpg"
+  },
+  {
+    "album": "What's Your Pleasure",
+    "artist": "Jessie Ware",
+    "tag": "disco",
+    "rank": 21,
+    "file": "What's Your Pleasure-Jessie Ware.jpg"
+  },
+  {
+    "album": "That! Feels Good!",
+    "artist": "Jessie Ware",
+    "tag": "disco",
+    "rank": 22,
+    "file": "That! Feels Good!-Jessie Ware.jpg"
+  },
+  {
+    "album": "Nightflight to Venus",
+    "artist": "Boney M.",
+    "tag": "disco",
+    "rank": 23,
+    "file": "Nightflight to Venus-Boney M..jpg"
+  },
+  {
+    "album": "I Will Survive",
+    "artist": "Gloria Gaynor",
+    "tag": "disco",
+    "rank": 24,
+    "file": "I Will Survive-Gloria Gaynor.jpg"
+  },
+  {
+    "album": "Wild Cherry",
+    "artist": "Wild Cherry",
+    "tag": "disco",
+    "rank": 25,
+    "file": "Wild Cherry-Wild Cherry.jpg"
+  },
+  {
+    "album": "18 Greatest Hits",
+    "artist": "Sandra",
+    "tag": "disco",
+    "rank": 26,
+    "file": "18 Greatest Hits-Sandra.jpg"
+  },
+  {
+    "album": "Arrival",
+    "artist": "ABBA",
+    "tag": "disco",
+    "rank": 27,
+    "file": "Arrival-ABBA.jpg"
+  },
+  {
+    "album": "Everything Now",
+    "artist": "Arcade Fire",
+    "tag": "disco",
+    "rank": 28,
+    "file": "Everything Now-Arcade Fire.jpg"
+  },
+  {
+    "album": "C'est Chic",
+    "artist": "Chic",
+    "tag": "disco",
+    "rank": 29,
+    "file": "C'est Chic-Chic.jpg"
+  },
+  {
+    "album": "I Created Disco",
+    "artist": "Calvin Harris",
+    "tag": "disco",
+    "rank": 30,
+    "file": "I Created Disco-Calvin Harris.jpg"
+  },
+  {
+    "album": "Korn",
+    "artist": "Korn",
+    "tag": "metal",
+    "rank": 31,
+    "file": "Korn-Korn.jpg"
+  },
+  {
+    "album": "All Hope Is Gone",
+    "artist": "Slipknot",
+    "tag": "metal",
+    "rank": 32,
+    "file": "All Hope Is Gone-Slipknot.jpg"
+  },
+  {
+    "album": "The Sickness",
+    "artist": "Disturbed",
+    "tag": "metal",
+    "rank": 33,
+    "file": "The Sickness-Disturbed.jpg"
+  },
+  {
+    "album": "Scream Aim Fire",
+    "artist": "Bullet for My Valentine",
+    "tag": "metal",
+    "rank": 34,
+    "file": "Scream Aim Fire-Bullet for My Valentine.jpg"
+  },
+  {
+    "album": "Far Beyond Driven",
+    "artist": "Pantera",
+    "tag": "metal",
+    "rank": 35,
+    "file": "Far Beyond Driven-Pantera.jpg"
+  },
+  {
+    "album": "Believe",
+    "artist": "Disturbed",
+    "tag": "metal",
+    "rank": 36,
+    "file": "Believe-Disturbed.jpg"
+  },
+  {
+    "album": "Oracle",
+    "artist": "Kittie",
+    "tag": "metal",
+    "rank": 37,
+    "file": "Oracle-Kittie.jpg"
+  },
+  {
+    "album": "Mafia",
+    "artist": "Black Label Society",
+    "tag": "metal",
+    "rank": 38,
+    "file": "Mafia-Black Label Society.jpg"
+  },
+  {
+    "album": "Iowa",
+    "artist": "Slipknot",
+    "tag": "metal",
+    "rank": 39,
+    "file": "Iowa-Slipknot.jpg"
+  },
+  {
+    "album": "Life Is Peachy",
+    "artist": "Korn",
+    "tag": "metal",
+    "rank": 40,
+    "file": "Life Is Peachy-Korn.jpg"
+  },
+  {
+    "album": "Static Age",
+    "artist": "Misfits",
+    "tag": "punk",
+    "rank": 41,
+    "file": "Static Age-Misfits.jpg"
+  },
+  {
+    "album": "Sing the Sorrow",
+    "artist": "AFI",
+    "tag": "punk",
+    "rank": 42,
+    "file": "Sing the Sorrow-AFI.jpg"
+  },
+  {
+    "album": "Songs of Praise",
+    "artist": "The Adicts",
+    "tag": "punk",
+    "rank": 43,
+    "file": "Songs of Praise-The Adicts.jpg"
+  },
+  {
+    "album": "Appeal to Reason",
+    "artist": "Rise Against",
+    "tag": "punk",
+    "rank": 44,
+    "file": "Appeal to Reason-Rise Against.jpg"
+  },
+  {
+    "album": "Fresh Fruit for Rotting Vegetables",
+    "artist": "Dead Kennedys",
+    "tag": "punk",
+    "rank": 45,
+    "file": "Fresh Fruit for Rotting Vegetables-Dead Kennedys.jpg"
+  },
+  {
+    "album": "Milo Goes to College",
+    "artist": "Descendents",
+    "tag": "punk",
+    "rank": 46,
+    "file": "Milo Goes to College-Descendents.jpg"
+  },
+  {
+    "album": "Damaged",
+    "artist": "Black Flag",
+    "tag": "punk",
+    "rank": 47,
+    "file": "Damaged-Black Flag.jpg"
+  },
+  {
+    "album": "Mondo Bizarro",
+    "artist": "Ramones",
+    "tag": "punk",
+    "rank": 48,
+    "file": "Mondo Bizarro-Ramones.jpg"
+  },
+  {
+    "album": "Punk in Drublic",
+    "artist": "NOFX",
+    "tag": "punk",
+    "rank": 49,
+    "file": "Punk in Drublic-NOFX.jpg"
+  },
+  {
+    "album": "Frankenstein Girls Will Seem Strangely Sexy",
+    "artist": "Mindless Self Indulgence",
+    "tag": "punk",
+    "rank": 50,
+    "file": "Frankenstein Girls Will Seem Strangely Sexy-Mindless Self Indulgence.jpg"
+  }
+]
