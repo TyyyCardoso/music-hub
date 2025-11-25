@@ -12,6 +12,7 @@ import News from "./pages/News";
 import TaylorSwiftTracker from "./pages/TaylorSwiftTracker";
 import ArtistProfile from "./pages/ArtistProfile";
 import NotFound from "./pages/NotFound";
+import VinylNinjaPage from "./pages/VinylNinjaPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<WorldMap />} />
           <Route path="/game" element={<Game />} />
+          <Route path="/ninjagame" element={<VinylNinjaPage />} />
           <Route path="/releases" element={<Releases />} />
           <Route path="/news" element={<News />} />
           <Route path="/taylor-swift-tracker" element={<TaylorSwiftTracker />} />

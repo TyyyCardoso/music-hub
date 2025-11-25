@@ -23,6 +23,13 @@ const Index = () => {
       color: "text-secondary",
     },
     {
+      icon: Gamepad2,
+      title: "Vinyl Slasher",
+      description: "Slash Vinyls to your heart's content",
+      path: "/ninjagame",
+      color: "text-secondary",
+    },
+    {
       icon: Calendar,
       title: "Upcoming Releases",
       description: "Stay ahead with the latest album and single releases",
@@ -74,6 +81,15 @@ const Index = () => {
               size="lg"
               variant="outline"
               onClick={() => navigate("/game")}
+              className="text-lg px-8 py-6"
+            >
+              <Gamepad2 className="mr-2" />
+              Play Game
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("/ninjagame")}
               className="text-lg px-8 py-6"
             >
               <Gamepad2 className="mr-2" />
