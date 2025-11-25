@@ -5,12 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { artistsData } from "@/data/artistsData";
 import YouTubePlayer from "@/components/YouTubePlayer";
+import { getYouTubeVideoIdForTrack } from "@/lib/api/lastfm";
 import { ArrowLeft, Calendar, MapPin, Music, Lightbulb, Disc3, Clock } from "lucide-react";
 
 const ArtistProfile = () => {
   const { artistId } = useParams<{ artistId: string }>();
   const artist = artistId ? artistsData[artistId] : null;
   const [selectedSong, setSelectedSong] = useState<{ videoId: string; title: string } | null>(null);
+  const [loadingSong, setLoadingSong] = useState<string | null>(null);
 
   if (!artist) {
     return (
@@ -66,8 +68,36 @@ const ArtistProfile = () => {
                 {artist.topSongs.map((song, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedSong({ videoId: song.youtubeId, title: song.title })}
-                    className="w-full text-left p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all flex items-center justify-between group"
+                    onClick={async () => {
+                      console.log('Song clicked:', song.title);
+                      if (loadingSong) return;
+                      setLoadingSong(song.title);
+                      try {
+                        let videoId = (song as any).youtubeId || undefined;
+                        console.log('Existing videoId:', videoId);
+                        
+                        if (!videoId) {
+                          console.log('Searching YouTube for:', artist.name, song.title);
+                          videoId = await getYouTubeVideoIdForTrack(artist.name, song.title) || undefined;
+                          console.log('YouTube API result:', videoId);
+                          
+                          // If no videoId, use search marker
+                          if (!videoId) {
+                            const searchQuery = `${artist.name} ${song.title}`;
+                            videoId = `SEARCH:${searchQuery}`;
+                          }
+                        }
+
+                        console.log('Opening player with videoId:', videoId);
+                        setSelectedSong({ videoId, title: song.title });
+                      } catch (err) {
+                        console.error('Error finding YouTube video:', err);
+                      } finally {
+                        setLoadingSong(null);
+                      }
+                    }}
+                    disabled={!!loadingSong}
+                    className="w-full text-left p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-all flex items-center justify-between group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div>
                       <p className="font-semibold group-hover:text-primary transition-colors">
@@ -77,7 +107,13 @@ const ArtistProfile = () => {
                         <p className="text-sm text-muted-foreground">{song.album}</p>
                       )}
                     </div>
-                    <Music className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div className="flex items-center gap-2">
+                      {loadingSong === song.title ? (
+                        <span className="text-sm text-muted-foreground">Procurando...</span>
+                      ) : (
+                        <Music className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>

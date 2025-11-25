@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { musicDataByCountry, MusicInfo } from "@/data/musicData"; // Alterado de CountryMusic
 import { Lightbulb, Loader2, ChevronLeft, ChevronRight } from "lucide-react"; // Adicionado Loader2 e Icons
 import { fetchMusicData } from "@/lib/api/musicBrainz"; // Ajusta este caminho se necessário
-import { getArtistDetails, getArtistTopTracks, getArtistTopAlbums, ArtistDetails, LastFmTrack, LastFmAlbum } from "@/lib/api/lastfm";
+import { getArtistDetails, getArtistTopTracks, getArtistTopAlbums, getYouTubeVideoIdForTrack, ArtistDetails, LastFmTrack, LastFmAlbum } from "@/lib/api/lastfm";
+import YouTubePlayer from "@/components/YouTubePlayer";
 import {
   Dialog,
   DialogContent,
@@ -118,6 +119,10 @@ const WorldMap = () => {
   const [albumsPage, setAlbumsPage] = useState(1);
   const [isTracksLoading, setIsTracksLoading] = useState(false);
   const [isAlbumsLoading, setIsAlbumsLoading] = useState(false);
+  
+  // YouTube Player State
+  const [selectedSong, setSelectedSong] = useState<{ videoId: string; title: string } | null>(null);
+  const [loadingSong, setLoadingSong] = useState<string | null>(null);
 
   // Cache em memória para armazenar dados já carregados
   const cacheRef = useRef<Record<string, MusicInfo>>({});
@@ -404,15 +409,46 @@ const WorldMap = () => {
                         </div>
                       ) : (
                         artistDetails.topTracks.track.map((track: LastFmTrack, i: number) => (
-                          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                          <button
+                            key={i}
+                            onClick={async () => {
+                              console.log('Song clicked:', track.name);
+                              if (loadingSong) return;
+                              setLoadingSong(track.name);
+                              try {
+                                console.log('Searching YouTube for:', selectedArtist, track.name);
+                                let videoId = await getYouTubeVideoIdForTrack(selectedArtist!, track.name);
+                                console.log('YouTube API result:', videoId);
+                                
+                                // If no videoId, use a special marker to show search results
+                                if (!videoId) {
+                                  console.log('Using YouTube search as fallback');
+                                  const searchQuery = `${selectedArtist} ${track.name}`;
+                                  videoId = `SEARCH:${searchQuery}`;
+                                }
+                                
+                                console.log('Opening player with videoId:', videoId);
+                                setSelectedSong({ videoId, title: track.name });
+                              } catch (err) {
+                                console.error('Error finding YouTube video:', err);
+                              } finally {
+                                setLoadingSong(null);
+                              }
+                            }}
+                            disabled={!!loadingSong}
+                            className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          >
                             <span className="text-2xl font-bold text-muted-foreground w-8 text-center">{(tracksPage - 1) * 5 + i + 1}</span>
-                            <div className="overflow-hidden">
+                            <div className="overflow-hidden flex-1 text-left">
                               <p className="font-medium truncate">{track.name}</p>
                               <p className="text-sm text-muted-foreground truncate">
                                 {parseInt(track.listeners).toLocaleString()} ouvintes
                               </p>
                             </div>
-                          </div>
+                            {loadingSong === track.name && (
+                              <span className="text-sm text-muted-foreground">Procurando...</span>
+                            )}
+                          </button>
                         ))
                       )}
                     </div>
@@ -480,6 +516,16 @@ const WorldMap = () => {
             ) : null}
           </DialogContent>
         </Dialog>
+
+        {/* YouTube Player Dialog */}
+        {selectedSong && (
+          <YouTubePlayer
+            isOpen={!!selectedSong}
+            onClose={() => setSelectedSong(null)}
+            videoId={selectedSong.videoId}
+            title={selectedSong.title}
+          />
+        )}
       </div>
     </div>
   );
