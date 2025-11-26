@@ -48,7 +48,7 @@ interface Particle {
 
 const albumList: Album[] = albumsJSON.map(a => {
   const img = new Image();
-  img.src = `/src/assets/albums/${a.file}`;
+  img.src = `/albums/${a.file}`;
   return { ...a, img };
 });
 
