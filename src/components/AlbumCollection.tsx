@@ -85,7 +85,7 @@ export const AlbumCollectionDialog = ({
                 className="flex flex-col items-center text-center rounded-lg transition-all"
               >
                 <img
-                  src={album.img?.src}
+                  src={`/albums/${album.img?.src}`} 
                   alt={album.album}
                   className={`w-23 h-23 rounded-lg shadow-md object-cover mb-2
                     ${!isUnlocked ? "grayscale blur-[5px] opacity-70" : ""}
