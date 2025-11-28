@@ -181,6 +181,13 @@ const WorldMap = () => {
 
     try {
       const details = await getArtistDetails(artistName);
+
+      // Validação: Verifica se existem dados
+      if (!details.topTracks.track.length && !details.topAlbums.album.length) {
+        setArtistError("Artista não encontrado ou sem dados disponíveis.");
+        return; // Não define os detalhes se não houver dados
+      }
+
       setArtistDetails(details);
     } catch (err) {
       setArtistError("Não foi possível carregar os detalhes do artista.");
@@ -219,7 +226,11 @@ const WorldMap = () => {
 
   const handleSearch = () => {
 
+    if (searchQuery.trim()) {
+      handleArtistClick(searchQuery.trim());
+    }
   };
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4">
@@ -290,6 +301,9 @@ const WorldMap = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
 
+                      e.preventDefault();
+                      handleSearch();
+                    }
                   }}
                 />
                 <Button onClick={handleSearch}>
