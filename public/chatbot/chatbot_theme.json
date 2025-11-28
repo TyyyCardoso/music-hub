@@ -1,0 +1,27 @@
+{
+    "title": "Botschool",
+    "subTitle": "",
+    "styles": [
+        "/chatbot/bot-style.css"
+    ],
+    "fonts": [
+        "https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/fonts/fonts.css"
+    ],
+    "placeholder": "ask me something",
+    "isMarkdown": true,
+    "chatHistory": "off",
+    "cardOptions": {
+        "direction": "horizontal",
+        "slidesPerView": 1.5,
+        "centeredSlides": true,
+        "spaceBetween": 10,
+        "navigation": true,
+        "pagination": {
+            "clickable": true
+        },
+        "keyboard": {
+            "enabled": true
+        },
+        "centeredSlidesBounds": true
+    }
+}

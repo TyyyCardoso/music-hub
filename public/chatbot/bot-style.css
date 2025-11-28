@@ -1,0 +1,464 @@
+* {
+    font-size: 16px;
+    line-height: 22.5px;
+    font-weight: 400;
+}
+
+* p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+#bsc-chat-container {
+    width: 350px;
+    z-index: 20;
+    bottom: 20px;
+    right: 20px;
+    height: 85vh;
+    border-radius: 15px;
+    box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.5);
+    background-color: hsl(220, 30%, 8%);
+    color: hsl(0, 0%, 98%);
+}
+
+#bsc-chat-container * {
+    font-family: "RobotoRegural", sans-serif;
+}
+
+#bsc-chat-container a {
+    color: hsl(330, 85%, 60%);
+}
+
+#bsc-chat-container a:hover,
+#bsc-chat-container a:active,
+#bsc-chat-container a:visited {
+    color: hsl(330, 85%, 70%);
+}
+
+#bsc-chat-container.bsc-chat-container-minimized .bsc-header {
+    display: none;
+}
+
+#bsc-chat-container .bsc-header {
+    flex: 65px 0 0;
+    background: linear-gradient(135deg, hsl(330, 85%, 60%), hsl(280, 85%, 55%));
+    padding: 15px 20px;
+    border-radius: 15px 15px 0 0;
+}
+
+#bsc-chat-container .bsc-header-details {
+    align-items: center;
+}
+
+#bsc-chat-container .bsc-header-details-image {
+    border-radius: 50%;
+    background-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/images/default_student.jpg");
+    background-repeat: no-repeat, no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    border: 2px solid #fff;
+    width: 35px;
+    height: 35px;
+}
+
+#bsc-chat-container .bsc-header-details-text {
+    padding-left: 10px;
+    padding-top: 2px;
+}
+
+#bsc-chat-container .bsc-header-details-text-title {
+    transform: none;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+#bsc-chat-container .bsc-header-action-minimize-icon {
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/minimize.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/minimize.svg");
+    background-color: #fff;
+}
+
+#bsc-chat-container .bsc-header-action-minimize-icon:hover {
+    opacity: 1;
+}
+
+#bsc-chat-container .bsc-header-action-close-icon {
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/close.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/close.svg");
+    background-color: #fff;
+}
+
+#bsc-chat-container .bsc-header-action-close-icon:hover {
+    opacity: 1;
+}
+
+#bsc-chat-container .bsc-message-list {
+    background-color: hsl(220, 30%, 8%);
+    overflow: auto;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container {
+    padding: 15px 3px 10px 20px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message {
+    background-color: hsl(330, 85%, 60%);
+    color: white;
+    border-radius: 15px 15px 0 15px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote {
+    max-width: 303px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message {
+    background-color: hsl(220, 25%, 12%);
+    color: hsl(0, 0%, 98%);
+    border-radius: 15px 15px 15px 0;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message {
+    padding: 10px;
+    width: fit-content;
+    box-shadow: 0px 4px 4px -3px rgba(0, 0, 0, 0.25);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message .dot-1,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message .dot-2,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message .dot-3,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message .dot-1,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message .dot-2,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message .dot-3 {
+    background-color: hsl(330, 85%, 60%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-title,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-title {
+    padding: 0 0 8px 0;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-vertical button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-horizontal button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-grid button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-vertical button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-horizontal button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-grid button {
+    line-height: 21px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    color: white;
+    background-color: hsl(330, 85%, 60%);
+    border: inherit;
+    border-color: hsl(330, 85%, 60%);
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-vertical :hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-horizontal :hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-menuButtons-grid :hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-vertical :hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-horizontal :hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-menuButtons-grid :hover {
+    background-color: hsl(330, 85%, 70%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-document,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-document {
+    max-width: 100%;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-document button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-document button {
+    line-height: 21px;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.2rem;
+    background-color: hsl(330, 85%, 60%);
+    border: inherit;
+    border-color: hsl(330, 85%, 60%);
+    color: #fff;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-document button .bsc-message-document-icon,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-document button .bsc-message-document-icon {
+    background-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/file.png");
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-document button:hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-document button:hover {
+    background-color: hsl(330, 85%, 70%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-audio,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-audio {
+    display: flex;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-audio audio::-webkit-media-controls-enclosure,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-audio audio::-webkit-media-controls-enclosure {
+    background-color: hsl(220, 25%, 12%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-wrapper,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-wrapper {
+    padding: 2px;
+    height: 350px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper {
+    width: 275px;
+    margin: unset;
+    padding-right: 4px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-slide,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-slide {
+    border-radius: 15px;
+    box-shadow: 0 2px 4px 0px rgba(0, 0, 0, 0.25);
+    height: calc(100% - 5px);
+    border: 0;
+    padding: 15px;
+    background: hsl(220, 25%, 12%);
+    color: hsl(0, 0%, 98%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button {
+    border-radius: 6px;
+    background-color: hsl(330, 85%, 60%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-disabled,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-disabled {
+    display: none;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-prev,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-next,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-prev,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-next {
+    background-color: rgba(229, 229, 229, 0.631372549);
+    width: 30px;
+    height: 30px;
+    top: 155px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-prev:hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-next:hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-prev:hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-next:hover {
+    background-color: rgba(255, 255, 255, 0.631372549);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-prev:after,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-prev:after {
+    color: transparent;
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/left.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/left.svg");
+    mask-repeat: no-repeat, no-repeat;
+    -webkit-mask-repeat: no-repeat, no-repeat;
+    mask-size: 20px;
+    -webkit-mask-size: 20px;
+    mask-position: center;
+    -webkit-mask-position: center;
+    background-color: #fff;
+    opacity: 0.9;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards .swiper-button-next:after,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards .swiper-button-next:after {
+    color: transparent;
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/right.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/right.svg");
+    mask-repeat: no-repeat, no-repeat;
+    -webkit-mask-repeat: no-repeat, no-repeat;
+    mask-size: 20px;
+    -webkit-mask-size: 20px;
+    mask-position: center;
+    -webkit-mask-position: center;
+    background-color: #fff;
+    opacity: 0.9;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-title,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-title {
+    color: hsl(0, 0%, 98%);
+    border-radius: 0px;
+    padding: 0 0 8px 0;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-image,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-image {
+    height: 168px;
+    display: flex;
+    justify-content: center;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-image img,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-image img {
+    max-height: 100%;
+    object-fit: contain;
+    width: 100%;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-content-title,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-content-title {
+    font-weight: 700;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-content-description,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-content-description {
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-footer,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-footer {
+    bottom: 15px;
+    position: absolute;
+    width: 100%;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-footer button,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-footer button {
+    display: flex;
+    line-height: 21px;
+    padding: 0.375rem 0.75rem;
+    color: white;
+    background-color: hsl(330, 85%, 60%);
+    border: inherit;
+    border-color: hsl(330, 85%, 60%);
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    align-items: center;
+    max-width: 100%;
+    font-size: 16px;
+    border-radius: 6px;
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-local .bsc-message-cards-footer button:hover,
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message-cards-footer button:hover {
+    background-color: hsl(330, 85%, 70%);
+}
+
+#bsc-chat-container .bsc-message-list .bsc-message-list-container .bsc-remote .bsc-message:has(bsc-message-audio) {
+    padding: 0;
+}
+
+#bsc-chat-container .bsc-footer {
+    padding: 0px;
+    position: relative;
+    background-color: hsl(220, 25%, 12%);
+    border-radius: 0 0 15px 15px;
+    flex: 55px 0 0;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    padding: 15px;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones>div.bsc-footer-zone {
+    padding: 0;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones>div.bsc-footer-zone:last-child {
+    border-radius: 0px 50px 50px 0px;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones .bsc-footer-zone-1 {
+    flex: 40px 0 0;
+    background-color: transparent;
+    border: none;
+    background: linear-gradient(90deg, hsl(330, 85%, 60%) 3%, hsl(280, 85%, 55%) 100%);
+    border-radius: 50%;
+    font-size: 22px;
+    padding: 0;
+    transition: transform 0.3s;
+    margin-right: 10px;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones .bsc-footer-zone-1:hover {
+    transform: scale(1.1);
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones .bsc-footer-zone-2 {
+    flex: auto 1 1;
+    border-radius: 50px 0px 0px 50px;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-zones .bsc-footer-zone-3 {
+    flex: 40px 0 0;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions {
+    background: transparent;
+    border: 0;
+    padding: 0;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions #bsc-mic-button {
+    border: none;
+    background: hsl(0, 0%, 98%);
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/mic.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/mic.svg");
+    mask-repeat: no-repeat, no-repeat;
+    -webkit-mask-repeat: no-repeat, no-repeat;
+    mask-size: 24px;
+    -webkit-mask-size: 24px;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions #bsc-user-input {
+    background-color: transparent;
+    outline: none;
+    padding: 2px;
+    margin: 0px 13px 0 20px;
+    color: hsl(0, 0%, 98%);
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions #bsc-user-input::placeholder {
+    color: unset;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions #bsc-send-button {
+    border: none;
+    background-color: hsl(330, 85%, 60%);
+    margin-right: 5px;
+    margin-left: 10px;
+    mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/send.svg");
+    -webkit-mask-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/icons/send.svg");
+    mask-repeat: no-repeat, no-repeat;
+    -webkit-mask-repeat: no-repeat, no-repeat;
+    mask-size: 15px;
+    -webkit-mask-size: 15px;
+}
+
+#bsc-chat-container .bsc-footer #bsc-footer-actions #bsc-send-button:hover {
+    background-color: hsl(330, 85%, 70%);
+}
+
+.bsc-chat-minimized {
+    background-image: url("https://webchat-themes.ng.botschool.ai/private-themes/botschool2.0/images/default_student.jpg");
+    background-repeat: no-repeat, no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    box-shadow: 0px 5px 2px rgba(0, 0, 0, 0.25);
+}
+
+.bsc-chat-minimized .bsc-text-container {
+    display: none;
+}
+
+/*# sourceMappingURL=botschool2.0.css.map */
