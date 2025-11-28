@@ -301,6 +301,7 @@ const WorldMap = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
 
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleSearch();
                     }
