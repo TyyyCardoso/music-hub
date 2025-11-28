@@ -1,83 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Music, Search } from "lucide-react";
-
-interface Release {
-  artist: string;
-  album: string;
-  date: string;
-  genre: string;
-  type: "Album" | "Single" | "EP";
-}
-
-const upcomingReleases: Release[] = [
-  {
-    artist: "The Weeknd",
-    album: "After Hours Deluxe",
-    date: "2025-12-15",
-    genre: "R&B",
-    type: "Album",
-  },
-  {
-    artist: "Dua Lipa",
-    album: "Midnight Dreams",
-    date: "2025-12-20",
-    genre: "Pop",
-    type: "Single",
-  },
-  {
-    artist: "Bad Bunny",
-    album: "Verano Sin Ti 2",
-    date: "2025-12-22",
-    genre: "Reggaeton",
-    type: "Album",
-  },
-  {
-    artist: "Billie Eilish",
-    album: "What Was I Made For? (Remix)",
-    date: "2025-12-25",
-    genre: "Alternative",
-    type: "Single",
-  },
-  {
-    artist: "Drake",
-    album: "For All The Dogs Deluxe",
-    date: "2025-12-28",
-    genre: "Hip Hop",
-    type: "EP",
-  },
-  {
-    artist: "Taylor Swift",
-    album: "Midnights (3am Edition)",
-    date: "2025-12-30",
-    genre: "Pop",
-    type: "Album",
-  },
-];
+import { Calendar, Music, Search, Loader2 } from "lucide-react";
+import { fetchNewReleases, Release } from "@/lib/api/musicBrainz";
 
 const Releases = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("all");
+  const [releases, setReleases] = useState<Release[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredReleases = upcomingReleases.filter(release => {
+  useEffect(() => {
+    const loadReleases = async () => {
+      setLoading(true);
+      const data = await fetchNewReleases();
+      setReleases(data);
+      setLoading(false);
+    };
+    loadReleases();
+  }, []);
+
+  const filteredReleases = releases.filter(release => {
     const matchesSearch = release.album.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         release.artist.toLowerCase().includes(searchQuery.toLowerCase());
+      release.artist.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = genreFilter === "all" || release.genre === genreFilter;
     return matchesSearch && matchesGenre;
   });
 
-  const genres = ["all", ...Array.from(new Set(upcomingReleases.map(r => r.genre)))];
+  const genres = ["all", ...Array.from(new Set(releases.map(r => r.genre)))];
 
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold mb-4 gradient-text">Próximos Lançamentos</h1>
+          <h1 className="text-5xl font-bold mb-4 gradient-text">Novos Lançamentos</h1>
           <p className="text-xl text-muted-foreground">
-            Os álbuns mais esperados do mundo da música
+            Os álbuns mais recentes e populares do mundo da música
           </p>
         </div>
 
@@ -106,43 +66,69 @@ const Releases = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReleases.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <p className="text-xl text-muted-foreground">Nenhum lançamento encontrado</p>
-            </div>
-          ) : (
-            filteredReleases.map((release, index) => (
-            <Card key={index} className="card-glow">
-              <CardHeader>
-                <div className="flex items-start justify-between mb-2">
-                  <Music className="text-primary w-8 h-8" />
-                  <Badge variant="secondary">{release.type}</Badge>
-                </div>
-                <CardTitle className="text-2xl gradient-text">
-                  {release.album}
-                </CardTitle>
-                <CardDescription className="text-lg font-semibold text-foreground">
-                  {release.artist}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>{new Date(release.date).toLocaleDateString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}</span>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredReleases.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-xl text-muted-foreground">Nenhum lançamento encontrado</p>
+              </div>
+            ) : (
+              filteredReleases.map((release, index) => (
+                <Card key={index} className="card-glow overflow-hidden group">
+                  <div className="relative aspect-square w-full overflow-hidden">
+                    {release.imageUrl ? (
+                      <img
+                        src={release.imageUrl}
+                        alt={release.album}
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Music className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2">
+                      <Badge variant="secondary" className="backdrop-blur-md bg-black/50 text-white border-none">
+                        {release.type}
+                      </Badge>
+                    </div>
                   </div>
-                  <Badge variant="outline">{release.genre}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-            ))
-          )}
-        </div>
+                  <CardHeader>
+                    <CardTitle className="text-xl gradient-text line-clamp-1" title={release.album}>
+                      {release.link ? (
+                        <a href={release.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          {release.album}
+                        </a>
+                      ) : (
+                        release.album
+                      )}
+                    </CardTitle>
+                    <CardDescription className="text-lg font-semibold text-foreground line-clamp-1" title={release.artist}>
+                      {release.artist}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span>{new Date(release.date).toLocaleDateString('pt-BR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</span>
+                      </div>
+                      <Badge variant="outline">{release.genre}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
