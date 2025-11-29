@@ -158,6 +158,9 @@ export interface Release {
   type: "Album" | "Single" | "EP";
   imageUrl?: string;
   link?: string;
+  trackCount?: number;
+  copyright?: string;
+  artistLink?: string;
 }
 
 /**
@@ -182,6 +185,9 @@ export const fetchNewReleases = async (): Promise<Release[]> => {
       const genre = entry["category"]?.attributes?.term || "Pop";
       const imageUrl = entry["im:image"]?.[2]?.label || ""; // 170x170 image
       const link = entry["link"]?.attributes?.href || "";
+      const trackCount = parseInt(entry["im:itemCount"]?.label || "0", 10);
+      const copyright = entry["rights"]?.label || "";
+      const artistLink = entry["im:artist"]?.attributes?.href || "";
 
       return {
         artist,
@@ -190,7 +196,10 @@ export const fetchNewReleases = async (): Promise<Release[]> => {
         genre,
         type: "Album", // iTunes feed doesn't explicitly distinguish, usually albums
         imageUrl,
-        link
+        link,
+        trackCount,
+        copyright,
+        artistLink
       };
     });
 
