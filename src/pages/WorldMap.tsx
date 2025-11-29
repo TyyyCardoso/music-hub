@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -113,6 +114,7 @@ const WorldMap = () => {
   const [artistDetails, setArtistDetails] = useState<ArtistDetails | null>(null);
   const [isArtistLoading, setIsArtistLoading] = useState(false);
   const [artistError, setArtistError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Pagination State
   const [tracksPage, setTracksPage] = useState(1);
@@ -179,6 +181,13 @@ const WorldMap = () => {
 
     try {
       const details = await getArtistDetails(artistName);
+
+      // Validação: Verifica se existem dados
+      if (!details.topTracks.track.length && !details.topAlbums.album.length) {
+        setArtistError("Artista não encontrado ou sem dados disponíveis.");
+        return; // Não define os detalhes se não houver dados
+      }
+
       setArtistDetails(details);
     } catch (err) {
       setArtistError("Não foi possível carregar os detalhes do artista.");
@@ -212,6 +221,13 @@ const WorldMap = () => {
       console.error("Failed to change album page", error);
     } finally {
       setIsAlbumsLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+
+    if (searchQuery.trim()) {
+      handleArtistClick(searchQuery.trim());
     }
   };
 
@@ -270,6 +286,34 @@ const WorldMap = () => {
 
           {/* Info Section */}
           <div className="space-y-6">
+            {/* Search Section */}
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="text-2xl">Pesquisar Artista</CardTitle>
+                <CardDescription>
+                  Pesquise diretamente por um artista para ver os seus detalhes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-2">
+                <Input
+                  placeholder="Nome do artista..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSearch();
+                    }
+                  }}
+                />
+                <Button onClick={handleSearch}>
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                  Pesquisar
+                </Button>
+              </CardContent>
+            </Card>
+
             {isLoading ? (
               <Card className="card-glow p-10 flex justify-center">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
