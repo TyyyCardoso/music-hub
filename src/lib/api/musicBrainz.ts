@@ -8,6 +8,12 @@ const fetchOptions = {
   },
 };
 
+// Estrutura de cada música
+export interface TrackInfo {
+  title: string;
+  artist: string;
+}
+
 /**
  * Procura dados de música de um país usando a API do MusicBrainz,
  * incluindo os TOP 5 GÉNEROS dos artistas.
@@ -150,3 +156,58 @@ export const fetchMusicData = async (
 };
 
 
+/**
+ * Busca músicas por género e país (baseado na gravação), ordenadas alfabeticamente.
+ * @param genre Género/tag da música
+ * @param country Nome do país
+ * @param limit Número máximo de músicas a retornar
+ */
+
+export const getTracksByGenreAndCountry = async (
+  genre: string,
+  country: string,
+  limit: number = 30
+): Promise<TrackInfo[]> => {
+  try {
+    const results: TrackInfo[] = [];
+
+    const url = `${MUSICBRAINZ_API_BASE}/recording?query=tag:"${encodeURIComponent(
+      genre
+    )}"&inc=releases&limit=100&fmt=json`;
+
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) throw new Error("Falha ao buscar recordings");
+
+    const data = await res.json();
+    const recordings: any[] = data.recordings || [];
+
+    for (const rec of recordings) {
+      // Verifica se pelo menos um release tem o país desejado
+      const hasReleaseInCountry = (rec.releases || []).some(
+        (rel: any) =>
+          (rel.country && rel.country.toLowerCase() === country.toLowerCase()) ||
+          (rel["release-events"] || []).some(
+            (ev: any) =>
+              ev.area?.name?.toLowerCase() === country.toLowerCase()
+          )
+      );
+
+      if (!hasReleaseInCountry) continue;
+
+      results.push({
+        title: rec.title,
+        artist: rec["artist-credit"]?.[0]?.name || "Unknown Artist",
+      });
+
+      if (results.length >= limit) break;
+    }
+
+    // Ordena por título da música
+    results.sort((a, b) => a.title.localeCompare(b.title));
+
+    return results;
+  } catch (err) {
+    console.error("Erro em getTracksByGenreAndCountry:", err);
+    return [];
+  }
+};
