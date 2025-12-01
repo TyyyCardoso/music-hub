@@ -8,6 +8,12 @@ const fetchOptions = {
   },
 };
 
+// Estrutura de cada música
+export interface TrackInfo {
+  title: string;
+  artist: string;
+}
+
 /**
  * Procura dados de música de um país usando a API do MusicBrainz,
  * incluindo os TOP 5 GÉNEROS dos artistas.
@@ -19,16 +25,16 @@ export const fetchMusicData = async (
   countryCode: string,
   countryName: string
 ): Promise<MusicInfo> => {
-  
+
   // --- PASSO 1: Validar o País (Mantém-se igual) ---
   const areaQuery = encodeURIComponent(`area:"${countryName}" AND type:"Country"`);
   const areaUrl = `${MUSICBRAINZ_API_BASE}/area?query=${areaQuery}&limit=5`;
-  
+
   const areaRes = await fetch(areaUrl, fetchOptions);
   if (!areaRes.ok) {
     throw new Error(`Falha ao procurar o país (${countryName}) no MusicBrainz.`);
   }
-  
+
   const areaData = await areaRes.json();
   const area = areaData.areas?.find((a: any) => a.type === "Country");
   const areaId = area?.id;
@@ -40,7 +46,7 @@ export const fetchMusicData = async (
   // --- PASSO 2: Buscar Artistas (Mantém-se igual) ---
   const artistQuery = encodeURIComponent(`area:"${countryName}"`);
   const artistUrl = `${MUSICBRAINZ_API_BASE}/artist?query=${artistQuery}&limit=5`;
-  
+
   const artistsRes = await fetch(artistUrl, fetchOptions);
   if (!artistsRes.ok) {
     throw new Error("Falha ao procurar artistas para este país.");
@@ -50,7 +56,7 @@ export const fetchMusicData = async (
   const artistsList = artistsData.artists || [];
 
   // --- PASSO 3: Buscar e Classificar os TOP 5 Géneros (LÓGICA ATUALIZADA) ---
-  
+
   const genrePromises = artistsList.map((artist: any) => {
     const artistId = artist.id;
     const genreUrl = `${MUSICBRAINZ_API_BASE}/artist/${artistId}?inc=genres`;
@@ -101,7 +107,8 @@ export const fetchMusicData = async (
  * Busca uma música aleatória dos 5 géneros mais populares mundialmente.
  * Ordena por rating e escolhe aleatoriamente uma das top 200.
  * Retorna um objecto com `title` e `artist` ou `null` se não encontrar.
- */export const fetchRandomPopularTrack = async (
+ */
+export const fetchRandomPopularTrack = async (
   usedTitles: Set<string> = new Set(),
   usedArtists: Set<string> = new Set()
 ): Promise<{ title: string; artist: string } | null> => {
@@ -149,4 +156,128 @@ export const fetchMusicData = async (
   }
 };
 
+export interface Release {
+  artist: string;
+  album: string;
+  date: string;
+  genre: string;
+  type: "Album" | "Single" | "EP";
+  imageUrl?: string;
+  link?: string;
+  trackCount?: number;
+  copyright?: string;
+  artistLink?: string;
+}
 
+/**
+ * Fetches top new albums from iTunes RSS feed.
+ * Note: This feed provides "Top Albums" which are usually recent releases or pre-orders.
+ */
+export const fetchNewReleases = async (): Promise<Release[]> => {
+  try {
+    // iTunes RSS Feed for Top Albums (US)
+    const url = "https://itunes.apple.com/us/rss/topalbums/limit=100/json";
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch releases from iTunes");
+
+    const data = await res.json();
+    const entries = data.feed?.entry || [];
+
+    const mappedReleases = entries.map((entry: any) => {
+      const artist = entry["im:artist"]?.label || "Unknown Artist";
+      const album = entry["im:name"]?.label || "Unknown Album";
+      const date = entry["im:releaseDate"]?.label || ""; // Format: YYYY-MM-DD usually
+      const genre = entry["category"]?.attributes?.term || "Pop";
+      const imageUrl = entry["im:image"]?.[2]?.label || ""; // 170x170 image
+      const link = entry["link"]?.attributes?.href || "";
+      const trackCount = parseInt(entry["im:itemCount"]?.label || "0", 10);
+      const copyright = entry["rights"]?.label || "";
+      const artistLink = entry["im:artist"]?.attributes?.href || "";
+
+      return {
+        artist,
+        album,
+        date,
+        genre,
+        type: "Album", // iTunes feed doesn't explicitly distinguish, usually albums
+        imageUrl,
+        link,
+        trackCount,
+        copyright,
+        artistLink
+      };
+    });
+
+    // Filter for releases in the last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const recentReleases = mappedReleases.filter((r: any) => {
+      const releaseDate = new Date(r.date);
+      return releaseDate >= sixMonthsAgo;
+    });
+
+    // Sort by date descending (Newest first)
+    return recentReleases.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch (error) {
+    console.error("Error fetching new releases:", error);
+    return [];
+  }
+};
+
+/**
+ * Busca músicas por género e país (baseado na gravação), ordenadas alfabeticamente.
+ * @param genre Género/tag da música
+ * @param country Nome do país
+ * @param limit Número máximo de músicas a retornar
+ */
+
+export const getTracksByGenreAndCountry = async (
+  genre: string,
+  country: string,
+  limit: number = 30
+): Promise<TrackInfo[]> => {
+  try {
+    const results: TrackInfo[] = [];
+
+    const url = `${MUSICBRAINZ_API_BASE}/recording?query=tag:"${encodeURIComponent(
+      genre
+    )}"&inc=releases&limit=100&fmt=json`;
+
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) throw new Error("Falha ao buscar recordings");
+
+    const data = await res.json();
+    const recordings: any[] = data.recordings || [];
+
+    for (const rec of recordings) {
+      // Verifica se pelo menos um release tem o país desejado
+      const hasReleaseInCountry = (rec.releases || []).some(
+        (rel: any) =>
+          (rel.country && rel.country.toLowerCase() === country.toLowerCase()) ||
+          (rel["release-events"] || []).some(
+            (ev: any) =>
+              ev.area?.name?.toLowerCase() === country.toLowerCase()
+          )
+      );
+
+      if (!hasReleaseInCountry) continue;
+
+      results.push({
+        title: rec.title,
+        artist: rec["artist-credit"]?.[0]?.name || "Unknown Artist",
+      });
+
+      if (results.length >= limit) break;
+    }
+
+    // Ordena por título da música
+    results.sort((a, b) => a.title.localeCompare(b.title));
+
+    return results;
+  } catch (err) {
+    console.error("Erro em getTracksByGenreAndCountry:", err);
+    return [];
+  }
+};

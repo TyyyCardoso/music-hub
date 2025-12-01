@@ -1,5 +1,4 @@
 import { useState, useCallback, memo, useRef } from "react";
-import { Link } from "react-router-dom";
 import {
   ComposableMap,
   Geographies,
@@ -9,8 +8,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 // --- 1. TIPO RENOMEADO e importação da API ---
-import { musicDataByCountry, MusicInfo } from "@/data/musicData"; // Alterado de CountryMusic
-import { Lightbulb, Loader2, ChevronLeft, ChevronRight } from "lucide-react"; // Adicionado Loader2 e Icons
+import { MusicInfo } from "@/data/musicData"; // Alterado de CountryMusic
+import { Loader2, ChevronLeft, ChevronRight, Bold, Lightbulb } from "lucide-react"; // Adicionado Loader2 e Icons
 import { fetchMusicData } from "@/lib/api/musicBrainz"; // Ajusta este caminho se necessário
 import { getArtistDetails, getArtistTopTracks, getArtistTopAlbums, getYouTubeVideoIdForTrack, ArtistDetails, LastFmTrack, LastFmAlbum } from "@/lib/api/lastfm";
 import YouTubePlayer from "@/components/YouTubePlayer";
@@ -23,6 +22,9 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { getTracksByGenreAndCountry  } from "@/lib/api/musicBrainz";
+
+import { Input } from "@/components/ui/input";
 
 // --- Constantes movidas para fora do componente ---
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -113,6 +115,7 @@ const WorldMap = () => {
   const [artistDetails, setArtistDetails] = useState<ArtistDetails | null>(null);
   const [isArtistLoading, setIsArtistLoading] = useState(false);
   const [artistError, setArtistError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Pagination State
   const [tracksPage, setTracksPage] = useState(1);
@@ -126,6 +129,13 @@ const WorldMap = () => {
 
   // Cache em memória para armazenar dados já carregados
   const cacheRef = useRef<Record<string, MusicInfo>>({});
+
+  // --- Genre Playlist Dialog ---
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [genreSongs, setGenreSongs] = useState<{ title: string; artist: string }[]>([]);
+  const [isGenreLoading, setIsGenreLoading] = useState(false);
+
+
 
   // --- Handlers com useCallback para estabilidade referencial ---
   const handleCountryClick = useCallback(async (geo: MapGeography) => {
@@ -179,6 +189,13 @@ const WorldMap = () => {
 
     try {
       const details = await getArtistDetails(artistName);
+
+      // Validação: Verifica se existem dados
+      if (!details.topTracks.track.length && !details.topAlbums.album.length) {
+        setArtistError("Artista não encontrado ou sem dados disponíveis.");
+        return; // Não define os detalhes se não houver dados
+      }
+
       setArtistDetails(details);
     } catch (err) {
       setArtistError("Não foi possível carregar os detalhes do artista.");
@@ -214,6 +231,30 @@ const WorldMap = () => {
       setIsAlbumsLoading(false);
     }
   };
+
+  const handleSearch = () => {
+
+    if (searchQuery.trim()) {
+      handleArtistClick(searchQuery.trim());
+    }
+  };
+
+  const handlePlaylistSongClick = async (song: { title: string; artist: string }) => {
+  if (loadingSong) return;
+  setLoadingSong(song.title);
+  try {
+    let videoId = await getYouTubeVideoIdForTrack(song.artist, song.title);
+    if (!videoId) {
+      videoId = `SEARCH:${song.artist} ${song.title}`;
+    }
+    setSelectedSong({ videoId, title: song.title });
+  } catch (err) {
+    console.error("Erro a buscar vídeo do YouTube:", err);
+  } finally {
+    setLoadingSong(null);
+  }
+};
+
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -270,6 +311,34 @@ const WorldMap = () => {
 
           {/* Info Section */}
           <div className="space-y-6">
+            {/* Search Section */}
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="text-2xl">Pesquisar Artista</CardTitle>
+                <CardDescription>
+                  Pesquise diretamente por um artista para ver os seus detalhes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-2">
+                <Input
+                  placeholder="Nome do artista..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSearch();
+                    }
+                  }}
+                />
+                <Button onClick={handleSearch}>
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                  Pesquisar
+                </Button>
+              </CardContent>
+            </Card>
+
             {isLoading ? (
               <Card className="card-glow p-10 flex justify-center">
                 <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -321,9 +390,26 @@ const WorldMap = () => {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedCountry.genres.map((genre) => (
-                        <Badge key={genre} variant="outline" className="text-base py-2 px-4">
-                          {genre}
-                        </Badge>
+                         <Badge key={genre}  variant="outline"
+                            className="text-base py-2 px-4 cursor-pointer hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                            onClick={async () => {
+                              setSelectedGenre(genre);
+                              setIsGenreLoading(true);
+                              setGenreSongs([]);
+
+                              try {
+                                const songs = await getTracksByGenreAndCountry(genre, selectedCountry.country);
+                                console.log('Fetched genre songs:', songs);
+                                setGenreSongs(songs);
+                              } catch (err) {
+                                console.error("Erro ao carregar músicas do género:", err);
+                              } finally {
+                                setIsGenreLoading(false);
+                              }
+                            }}
+                          >
+                            {genre}
+                          </Badge>
                       ))}
                     </div>
                   </div>
@@ -516,6 +602,49 @@ const WorldMap = () => {
             ) : null}
           </DialogContent>
         </Dialog>
+      
+        {/* Genre Playlist Dialog */}
+        <Dialog open={!!selectedGenre} onOpenChange={(open) => !open && setSelectedGenre(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-bold gradient-text"> Playlist de {selectedGenre}, {selectedCountry?.country} </DialogTitle>
+              <DialogDescription> Playlist de músicas do género {selectedGenre}, lançadas no país {selectedCountry?.country}! </DialogDescription>
+            </DialogHeader>
+
+            {/* Conteúdo playlists */}
+            {isGenreLoading ? (
+              <div className="flex justify-center items-center p-10">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-3 mt-4 overflow-y-auto pr-2">
+                {genreSongs.map((song, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePlaylistSongClick(song)}
+                    disabled={!!loadingSong}
+                    className="w-full flex items-center gap-3 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <span className="text-2xl font-bold text-muted-foreground w-8 text-center">{i + 1}</span>
+                    <div className="flex-1 overflow-hidden text-left">
+                      <p className="font-semibold truncate">{song.title}</p>
+                      <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                    </div>
+                    {loadingSong === song.title && (
+                      <span className="text-sm text-muted-foreground">Procurando...</span>
+                    )}
+                  </button>
+                ))}
+                {genreSongs.length === 0 && (
+                  <div className="p-4 text-muted-foreground text-center">
+                    Nenhuma música encontrada.
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
 
         {/* YouTube Player Dialog */}
         {selectedSong && (
