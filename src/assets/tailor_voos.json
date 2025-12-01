@@ -1,0 +1,518 @@
+[
+  {
+    "date": "April 1 2025",
+    "location": "Morristown, New Jersey, United States",
+    "flight_time": "1 h 29 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 566.0,
+      "liters": 2143.0,
+      "cost_usd": 3171.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "April 16 16:55",
+    "location": "Burbank, California, United States",
+    "flight_time": "4 h 12 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1597.0,
+      "liters": 6047.0,
+      "cost_usd": 8945.0,
+      "co2_tons": 17.0
+    }
+  },
+  {
+    "date": "April 17 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "3 h 9 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1201.0,
+      "liters": 4547.0,
+      "cost_usd": 6727.0,
+      "co2_tons": 13.0
+    }
+  },
+  {
+    "date": "April 18 2025",
+    "location": "Tampa, Florida, United States",
+    "flight_time": "1 h 18 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 497.0,
+      "liters": 1883.0,
+      "cost_usd": 2785.0,
+      "co2_tons": 5.0
+    }
+  },
+  {
+    "date": "April 18 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 30 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 575.0,
+      "liters": 2175.0,
+      "cost_usd": 3218.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "April 18 2025",
+    "location": "Morristown, New Jersey, United States",
+    "flight_time": "1 h 37 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 617.0,
+      "liters": 2334.0,
+      "cost_usd": 3453.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "April 21 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 44 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 659.0,
+      "liters": 2494.0,
+      "cost_usd": 3690.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "April 21 2025",
+    "location": "Tampa, Florida, United States",
+    "flight_time": "1 h 22 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 525.0,
+      "liters": 1988.0,
+      "cost_usd": 2940.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "April 21 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 34 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 599.0,
+      "liters": 2266.0,
+      "cost_usd": 3352.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "April 29 2025",
+    "location": "Pinellas Park, Florida, United States",
+    "flight_time": "1 h 21 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 519.0,
+      "liters": 1963.0,
+      "cost_usd": 2904.0,
+      "co2_tons": 5.0
+    }
+  },
+  {
+    "date": "April 29 2025",
+    "location": "Orlando, Florida, United States",
+    "flight_time": "28 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 180.0,
+      "liters": 681.0,
+      "cost_usd": 1007.0,
+      "co2_tons": 2.0
+    }
+  },
+  {
+    "date": "April 29 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 38 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 623.0,
+      "liters": 2360.0,
+      "cost_usd": 3491.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "May 7 2025",
+    "location": "Morristown, New Jersey, United States",
+    "flight_time": "1 h 36 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 612.0,
+      "liters": 2319.0,
+      "cost_usd": 3430.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "May 8 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 47 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 680.0,
+      "liters": 2574.0,
+      "cost_usd": 3807.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "May 21 2025",
+    "location": "Burbank, California, United States",
+    "flight_time": "4 h 8 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1571.0,
+      "liters": 5947.0,
+      "cost_usd": 8798.0,
+      "co2_tons": 17.0
+    }
+  },
+  {
+    "date": "May 22 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "3 h 5 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1173.0,
+      "liters": 4438.0,
+      "cost_usd": 6566.0,
+      "co2_tons": 12.0
+    }
+  },
+  {
+    "date": "May 28 2025",
+    "location": "White Plains, New York, United States",
+    "flight_time": "1 h 45 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 669.0,
+      "liters": 2532.0,
+      "cost_usd": 3745.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "May 29 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 49 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 694.0,
+      "liters": 2628.0,
+      "cost_usd": 3888.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "May 29 2025",
+    "location": "Burbank, California, United States",
+    "flight_time": "3 h 50 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1459.0,
+      "liters": 5524.0,
+      "cost_usd": 8172.0,
+      "co2_tons": 15.0
+    }
+  },
+  {
+    "date": "May 30 2025",
+    "location": "Gallatin, Tennessee, United States",
+    "flight_time": "3 h 18 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1255.0,
+      "liters": 4752.0,
+      "cost_usd": 7030.0,
+      "co2_tons": 13.0
+    }
+  },
+  {
+    "date": "June 5 2025",
+    "location": "Morristown, New Jersey, United States",
+    "flight_time": "1 h 34 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 597.0,
+      "liters": 2261.0,
+      "cost_usd": 3344.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "June 5 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 34 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 600.0,
+      "liters": 2271.0,
+      "cost_usd": 3359.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "June 5 2025",
+    "location": "Fort Lauderdale, Florida, United States",
+    "flight_time": "1 h 38 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 625.0,
+      "liters": 2364.0,
+      "cost_usd": 3497.0,
+      "co2_tons": 7.0
+    }
+  },
+  {
+    "date": "June 5 2025",
+    "location": "Tampa, Florida, United States",
+    "flight_time": "41 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 261.0,
+      "liters": 988.0,
+      "cost_usd": 1462.0,
+      "co2_tons": 3.0
+    }
+  },
+  {
+    "date": "June 6 2025",
+    "location": "Fort Lauderdale, Florida, United States",
+    "flight_time": "36 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 229.0,
+      "liters": 866.0,
+      "cost_usd": 1281.0,
+      "co2_tons": 2.0
+    }
+  },
+  {
+    "date": "June 6 2025",
+    "location": "Tampa, Florida, United States",
+    "flight_time": "38 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 244.0,
+      "liters": 925.0,
+      "cost_usd": 1368.0,
+      "co2_tons": 3.0
+    }
+  },
+  {
+    "date": "June 8 2025",
+    "location": "Nashville, Tennessee, United States",
+    "flight_time": "1 h 30 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 574.0,
+      "liters": 2174.0,
+      "cost_usd": 3216.0,
+      "co2_tons": 6.0
+    }
+  },
+  {
+    "date": "June 9 2025",
+    "location": "Little Rock, Arkansas, United States",
+    "flight_time": "52 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 330.0,
+      "liters": 1249.0,
+      "cost_usd": 1848.0,
+      "co2_tons": 3.0
+    }
+  },
+  {
+    "date": "July 3 2025",
+    "location": "Madrid, Spain",
+    "flight_time": "4 h 24 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 272.0,
+      "liters": 1029.5,
+      "cost_usd": 1349.6,
+      "co2_tons": 2.9
+    }
+  },
+  {
+    "date": "August 15 2025",
+    "location": "Atlanta, Georgia, United States",
+    "flight_time": "3 h 58 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 421.2,
+      "liters": 1594.2,
+      "cost_usd": 2092.8,
+      "co2_tons": 4.5
+    }
+  },
+  {
+    "date": "August 21 2025",
+    "location": "Chicago, Illinois, United States",
+    "flight_time": "1 h 5 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1567.6,
+      "liters": 5933.4,
+      "cost_usd": 7840.9,
+      "co2_tons": 16.6
+    }
+  },
+  {
+    "date": "September 1 2025",
+    "location": "London, England, United Kingdom",
+    "flight_time": "3 h 10 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1400.1,
+      "liters": 5299.4,
+      "cost_usd": 6931.4,
+      "co2_tons": 14.8
+    }
+  },
+  {
+    "date": "September 12 2025",
+    "location": "Los Angeles, California, United States",
+    "flight_time": "2 h 5 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 459.3,
+      "liters": 1738.5,
+      "cost_usd": 2182.4,
+      "co2_tons": 4.9
+    }
+  },
+  {
+    "date": "September 14 2025",
+    "location": "Miami, Florida, United States",
+    "flight_time": "3 h 43 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1528.9,
+      "liters": 5786.9,
+      "cost_usd": 9134.4,
+      "co2_tons": 16.2
+    }
+  },
+  {
+    "date": "October 2 2025",
+    "location": "Paris, \u00cele-de-France, France",
+    "flight_time": "2 h 57 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 365.1,
+      "liters": 1381.9,
+      "cost_usd": 2012.8,
+      "co2_tons": 3.9
+    }
+  },
+  {
+    "date": "October 14 2025",
+    "location": "Austin, Texas, United States",
+    "flight_time": "2 h 6 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1526.6,
+      "liters": 5778.2,
+      "cost_usd": 8480.1,
+      "co2_tons": 16.2
+    }
+  },
+  {
+    "date": "October 18 2025",
+    "location": "London, England, United Kingdom",
+    "flight_time": "54 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 890.1,
+      "liters": 3369.0,
+      "cost_usd": 4087.3,
+      "co2_tons": 9.4
+    }
+  },
+  {
+    "date": "October 26 2025",
+    "location": "Denver, Colorado, United States",
+    "flight_time": "2 h 8 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 452.4,
+      "liters": 1712.3,
+      "cost_usd": 2099.1,
+      "co2_tons": 4.8
+    }
+  },
+  {
+    "date": "October 27 2025",
+    "location": "Austin, Texas, United States",
+    "flight_time": "2 h 47 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 579.9,
+      "liters": 2194.9,
+      "cost_usd": 3418.6,
+      "co2_tons": 6.1
+    }
+  },
+  {
+    "date": "October 28 2025",
+    "location": "Miami, Florida, United States",
+    "flight_time": "3 h 6 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 875.7,
+      "liters": 3314.5,
+      "cost_usd": 4556.5,
+      "co2_tons": 9.3
+    }
+  },
+  {
+    "date": "November 17 2025",
+    "location": "Dublin, Ireland",
+    "flight_time": "1 h 24 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1496.1,
+      "liters": 5662.7,
+      "cost_usd": 8034.5,
+      "co2_tons": 15.9
+    }
+  },
+  {
+    "date": "November 18 2025",
+    "location": "Miami, Florida, United States",
+    "flight_time": "1 h 36 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 787.1,
+      "liters": 2979.2,
+      "cost_usd": 3854.1,
+      "co2_tons": 8.3
+    }
+  },
+  {
+    "date": "November 28 2025",
+    "location": "London, England, United Kingdom",
+    "flight_time": "51 min",
+    "reg": "Falcon 7x",
+    "fuel": {
+      "gallons": 1563.2,
+      "liters": 5916.7,
+      "cost_usd": 8301.8,
+      "co2_tons": 16.6
+    }
+  }
+]
