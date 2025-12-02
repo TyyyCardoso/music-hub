@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plane, Fuel, MapPin, TrendingUp, Calendar } from "lucide-react";
+import { useState } from "react";
+import WorldMapCanvas from "@/components/WorldMapCanvas";
+import FuelCo2ComparisonChart from "@/components/FuelCo2ComparisonChart";
 
 const TaylorSwiftTracker = () => {
   // Mock data - numa aplicação real, estes dados viriam de uma API
@@ -22,6 +25,14 @@ const TaylorSwiftTracker = () => {
     { from: "Paris", to: "London", date: "1 Nov 2025", fuel: "3,200 gal", co2: "30 tons" },
     { from: "Berlin", to: "Paris", date: "28 Oct 2025", fuel: "2,800 gal", co2: "26 tons" },
   ];
+
+  const [expandedFlightIndex, setExpandedFlightIndex] = useState<number | null>(null);
+
+  function parseFlightValues(flight: { fuel: string; co2: string }) {
+    const fuel = Number(flight.fuel.replace(/[^0-9.-]+/g, ""));
+    const co2 = Number(flight.co2.replace(/[^0-9.-]+/g, ""));
+    return { fuel: isNaN(fuel) ? 0 : fuel, co2: isNaN(co2) ? 0 : co2 };
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -139,29 +150,111 @@ const TaylorSwiftTracker = () => {
             <CardContent>
               <div className="space-y-4">
                 {recentFlights.map((flight, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-card/50 rounded-lg border"
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <Plane className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-semibold">
-                          {flight.from} → {flight.to}
-                        </p>
-                        <p className="text-sm text-muted-foreground">{flight.date}</p>
+                  <div key={index} className="space-y-2">
+                    <button
+                      className="w-full flex items-center justify-between p-4 bg-card/50 rounded-lg border"
+                      onClick={() => setExpandedFlightIndex(expandedFlightIndex === index ? null : index)}
+                      aria-expanded={expandedFlightIndex === index}
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <Plane className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-semibold">
+                            {flight.from} → {flight.to}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{flight.date}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-6 text-sm">
-                      <div className="text-right">
-                        <p className="text-orange-500 font-semibold">{flight.fuel}</p>
-                        <p className="text-muted-foreground">Combustível</p>
+                      <div className="flex gap-6 text-sm">
+                        <div className="text-right">
+                          <p className="text-orange-500 font-semibold">{flight.fuel}</p>
+                          <p className="text-muted-foreground">Combustível</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-red-500 font-semibold">{flight.co2}</p>
+                          <p className="text-muted-foreground">CO₂</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-red-500 font-semibold">{flight.co2}</p>
-                        <p className="text-muted-foreground">CO₂</p>
+                    </button>
+
+                    {expandedFlightIndex === index && (
+                      <div className="p-4 bg-card/40 rounded-lg border mt-1">
+                        <div className="grid md:grid-cols-2 gap-4 items-center">
+                          <div className="w-full h-64 rounded overflow-hidden border">
+                            {/* Map from the world map canvas (reuses projection/style) */}
+                            <WorldMapCanvas
+                              markers={(() => {
+                                const cityCoords: Record<string, [number, number]> = {
+                                  'New York': [-74.0060, 40.7128],
+                                  'Los Angeles': [-118.2437, 34.0522],
+                                  'London': [-0.1278, 51.5074],
+                                  'Paris': [2.3522, 48.8566],
+                                  'Berlin': [13.4050, 52.5200],
+                                  'Tokyo': [139.6917, 35.6895],
+                                };
+                                const from = cityCoords[flight.from as keyof typeof cityCoords];
+                                const to = cityCoords[flight.to as keyof typeof cityCoords];
+                                const markers = [] as any[];
+                                if (from) markers.push({ coordinates: from, label: flight.from });
+                                if (to) markers.push({ coordinates: to, label: flight.to, color: '#fb7185' });
+                                return markers;
+                              })()}
+                              routes={(() => {
+                                const cityCoords: Record<string, [number, number]> = {
+                                  'New York': [-74.0060, 40.7128],
+                                  'Los Angeles': [-118.2437, 34.0522],
+                                  'London': [-0.1278, 51.5074],
+                                  'Paris': [2.3522, 48.8566],
+                                  'Berlin': [13.4050, 52.5200],
+                                  'Tokyo': [139.6917, 35.6895],
+                                };
+                                const from = cityCoords[flight.from as keyof typeof cityCoords];
+                                const to = cityCoords[flight.to as keyof typeof cityCoords];
+                                if (from && to) return [{ from, to, color: '#60a5fa' }];
+                                return [];
+                              })()}
+                              focusRoute={(() => {
+                                const cityCoords: Record<string, [number, number]> = {
+                                  'New York': [-74.0060, 40.7128],
+                                  'Los Angeles': [-118.2437, 34.0522],
+                                  'London': [-0.1278, 51.5074],
+                                  'Paris': [2.3522, 48.8566],
+                                  'Berlin': [13.4050, 52.5200],
+                                  'Tokyo': [139.6917, 35.6895],
+                                };
+                                const from = cityCoords[flight.from as keyof typeof cityCoords];
+                                const to = cityCoords[flight.to as keyof typeof cityCoords];
+                                if (from && to) return { from, to, zoom: 2 };
+                                return null;
+                              })()}
+                              interactive={false}
+                            />
+                          </div>
+                          <div className="w-full p-2">
+                                        {(() => {
+                                          // Build sorted flights by date descending so we can pick the most recent flight
+                                          const sortedFlights = [...recentFlights].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                                          const sortedIndex = sortedFlights.findIndex(f => f.from === flight.from && f.to === flight.to && f.date === flight.date);
+                                          // For sorted descending (most recent first), the previous (older) flight is at sortedIndex + 1
+                                          const previousFlight = sortedIndex !== -1 && sortedIndex < sortedFlights.length - 1 ? sortedFlights[sortedIndex + 1] : null;
+
+                                          if (!previousFlight) {
+                                            return <div className="text-sm text-muted-foreground">Não há voo anterior para comparar.</div>;
+                                          }
+
+                                          return (
+                                            <FuelCo2ComparisonChart
+                                              previous={parseFlightValues(previousFlight)}
+                                              current={parseFlightValues(flight)}
+                                              previousLabel={`Previous: ${previousFlight!.from} → ${previousFlight!.to}`}
+                                              currentLabel={`Selected: ${flight.from} → ${flight.to}`}
+                                            />
+                                          );
+                                        })()}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
